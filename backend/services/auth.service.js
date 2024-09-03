@@ -4,13 +4,16 @@ const registerUser = async ({ email, password }) => {
   try {
     const user = new User({ email, password });
     await user.save();
-    console.log(`User saved: ${user}`);
     return user;
   } catch (error) {
     if (error.code === 11000) {
-      console.log("Duplicate email error");
+      // Custom error for duplicate email
+      throw new Error(
+        "Duplicate Email: The email address is already registered."
+      );
     } else {
-      throw new Error("Couldn't register user", error);
+      // General error
+      throw new Error(`Couldn't register user: ${error.message}`);
     }
   }
 };

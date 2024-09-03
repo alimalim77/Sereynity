@@ -3,13 +3,16 @@ const userService = require("../services/auth.service");
 const postRegister = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const response = await userService.registerUser({
+    const user = await userService.registerUser({
       email: email,
       password: password,
     });
-    res.status(201).send(response);
+    res.status(201).send({ message: "User registered successfully", user });
   } catch (error) {
-    throw error;
+    if (error.message.includes("Duplicate Email")) {
+      return res.status(409).send({ message: error.message });
+    }
+    return res.status(500).send({ message: error.message });
   }
 };
 
@@ -21,12 +24,12 @@ const postLogin = async (req, res) => {
       password: password,
     });
     if (response.length > 0) {
-      res.status(201).send(response);
+      res.status(200).send(response);
     } else {
-      res.status(401).send({ response: response, message: "Unauthorized" });
+      res.status(401).send({ message: "Unauthorized or Wrong Password" });
     }
   } catch (error) {
-    throw error;
+    return res.status(500).send({ message: error.message });
   }
 };
 
