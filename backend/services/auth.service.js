@@ -1,4 +1,5 @@
 const { User } = require('../models/user.model')
+const bcrypt = require('bcryptjs')
 
 const registerUser = async ({ email, password }) => {
   try {
@@ -20,8 +21,19 @@ const registerUser = async ({ email, password }) => {
 
 const loginUser = async ({ email, password }) => {
   try {
-    console.log('Inside Login Service')
-    const response = await User.find({ email: email, password: password })
+    const response = await User.findOne({ email: email })
+
+    const checkPassword = await bcrypt.compare(password, response.password)
+    return checkPassword ? response : undefined
+  } catch (error) {
+    console.log(error)
+    throw new Error("Couldn't find user", error)
+  }
+}
+
+const verifyUser = async email => {
+  try {
+    const response = await User.findOne({ email })
     return response
   } catch (error) {
     throw new Error("Couldn't find user", error)
@@ -30,5 +42,6 @@ const loginUser = async ({ email, password }) => {
 
 module.exports = {
   registerUser,
-  loginUser
+  loginUser,
+  verifyUser
 }

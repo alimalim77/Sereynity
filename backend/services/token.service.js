@@ -9,7 +9,7 @@ const generateToken = (
   userId,
   expires,
   type,
-  secret = process.env.SECRET_KEY
+  secret = process.env.JWT_SECRET
 ) => {
   const data = {
     sub: userId,

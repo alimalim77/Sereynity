@@ -27,6 +27,8 @@ const sendEmail = async email => {
   }
 
   await transporter.sendMail(mailOptions)
+  // OTP remainds active for a time duration of 120 seconds
+  return { otp, expiresAt: Date.now() + 2 * 60 * 1000 }
 }
 
 module.exports = {
