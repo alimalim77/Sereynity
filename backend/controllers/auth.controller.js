@@ -53,14 +53,14 @@ const postLogin = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await userService.loginUser({ email, password });
-
     if (!user) {
       return res
         .status(401)
         .json({ message: "Unauthorized or Invalid Credentials" });
     }
+    const token = await generateAuthenticationToken(user);
 
-    return res.status(200).json(user);
+    return res.status(200).json({ user, token });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -77,13 +77,15 @@ const postForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await userService.verifyUser(email);
-    if (!user) {
-      return res.status(401).send({ message: "Invalid email address" });
+    if (!user || user.isVerified === undefined) {
+      return res
+        .status(400)
+        .send({ message: "Invalid email address or unauthorized" });
     }
     const { otp, expiresAt } = await sendEmail(email);
 
     await assignDetails(user, otp, expiresAt);
-    return res.status(200).json({ user: user });
+    return res.status(200).json(user);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

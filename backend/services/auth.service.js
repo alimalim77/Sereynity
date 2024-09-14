@@ -24,7 +24,8 @@ const loginUser = async ({ email, password }) => {
     const response = await User.findOne({ email: email })
 
     const checkPassword = await bcrypt.compare(password, response.password)
-    return checkPassword ? response : undefined
+
+    return checkPassword && response.isVerified === true ? response : undefined
   } catch (error) {
     throw new Error("Couldn't find user", error)
   }

@@ -12,6 +12,8 @@ const { User } = require("../models/user.model.js");
 const tokenService = require("../services/token.service.js");
 const { userOne, insertUsers } = require("./fixtures/user.fixture");
 const { userOneAccessToken } = require("./fixtures/token.fixture");
+const { describe } = require("node:test");
+const { sendEmail } = require("../utils/nodemail.util.js");
 
 jest.mock("../utils/nodemail.util.js", () => ({
   sendEmail: jest.fn().mockResolvedValue({
@@ -50,14 +52,8 @@ describe("Auth Routes", () => {
       });
 
       // Expect sendEmail to be called with the newUser's email
-      const { sendEmail } = require("../utils/nodemail.util.js");
       expect(sendEmail).toHaveBeenCalledWith(newUser.email);
-
-      // Part of OTP Registration Verification
-      // expect(res.body.tokens).toEqual({
-      //   access: { token: expect.anything(), expires: expect.anything() },
-      // });
-    }, 8000);
+    });
 
     test("should return 409 for duplicacy, the email address is already registered", async () => {
       // Send the first registration request
@@ -71,7 +67,7 @@ describe("Auth Routes", () => {
     });
 
     test("should return 400 for invalid request data", async () => {
-      let invalidUser = {
+      const invalidUser = {
         email: "invalid-email", // Invalid email format
         password: "pass", // Password too short
       };
@@ -99,6 +95,241 @@ describe("Auth Routes", () => {
       expect(res.body.message).toBe("Internal Server Error");
 
       mockUser.mockRestore();
+    });
+  });
+  describe("POST /v1/auth/verify", () => {
+    let newUser;
+    beforeEach(() => {
+      newUser = {
+        email: faker.internet.email().toLowerCase(),
+        password: "password1",
+      };
+    });
+
+    test("should return 201 and successfully verify the OTP", async () => {
+      const res = await request(app).post("/v1/auth/register").send(newUser);
+      const mockUser = {
+        email: res.body.user.email,
+        otp: res.body.user.otp,
+      };
+
+      // Expect sendEmail to be called with the newUser's email
+      expect(sendEmail).toHaveBeenCalledWith(newUser.email);
+
+      const verificationRes = await request(app)
+        .post("/v1/auth/verify")
+        .send(mockUser);
+
+      expect(verificationRes.status).toBe(httpStatus.CREATED);
+
+      expect(verificationRes.body.user).toEqual(
+        expect.objectContaining({
+          email: mockUser.email,
+          isVerified: expect.any(Boolean),
+        })
+      );
+    });
+
+    test("should return 400 if email address is invalid", async () => {
+      const res = await request(app).post("/v1/auth/verify").send(newUser);
+      expect(res.status).toEqual(httpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({ message: "Invalid request" });
+    });
+
+    test("should return 401 if OTP is expired or invalid", async () => {
+      const res = await request(app).post("/v1/auth/register").send(newUser);
+      const mockUser = {
+        email: res.body.user.email,
+        otp: Math.floor(100000 + Math.random() * 900000),
+      };
+      const verificationRes = await request(app)
+        .post("/v1/auth/verify")
+        .send(mockUser);
+      expect(verificationRes.status).toEqual(httpStatus.UNAUTHORIZED);
+    });
+
+    test("should return 500 for server error during verification of OTP", async () => {
+      const mockUser = jest
+        .spyOn(userService, "verifyUser")
+        .mockRejectedValue(new Error("Internal Server Error"));
+
+      const res = await request(app).post("/v1/auth/verify").send(newUser);
+
+      // Expecting a 500 Internal Server Error due to a server-side issue
+      expect(res.status).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+
+      // Check if the response contains the correct error message
+      expect(res.body.message).toBe("Internal Server Error");
+
+      mockUser.mockRestore();
+    });
+  });
+
+  describe("POST /v1/auth/login", () => {
+    let newUser;
+    beforeEach(() => {
+      newUser = {
+        email: faker.internet.email().toLowerCase(),
+        password: "password1",
+      };
+    });
+    test("should return 200 if user is valid with verified email", async () => {
+      const res = await request(app).post("/v1/auth/register").send(newUser);
+      const mockUser = {
+        email: res.body.user.email,
+        otp: res.body.user.otp,
+      };
+
+      // Expect sendEmail to be called with the newUser's email
+      expect(sendEmail).toHaveBeenCalledWith(newUser.email);
+
+      await request(app).post("/v1/auth/verify").send(mockUser);
+
+      const loginRes = await request(app)
+        .post("/v1/auth/login")
+        .send({ email: res.body.user.email, password: newUser.password });
+
+      expect(loginRes.status).toBe(httpStatus.OK);
+
+      expect(loginRes.body.user).toEqual(
+        expect.objectContaining({
+          email: mockUser.email,
+          isVerified: expect.any(Boolean),
+        })
+      );
+
+      expect(loginRes.body.token).toEqual(
+        expect.objectContaining({
+          access: expect.anything(),
+        })
+      );
+    });
+
+    test("should return 401 if user is unauthroized or invalid credentials", async () => {
+      const res = await request(app).post("/v1/auth/register").send(newUser);
+      const mockUser = {
+        email: res.body.user.email,
+        otp: res.body.user.otp,
+      };
+      await request(app).post("/v1/auth/verify").send(mockUser);
+
+      const loginRes = await request(app)
+        .post("/v1/auth/login")
+        .send({ email: res.body.user.email, password: "12345678" });
+
+      expect(loginRes.status).toBe(httpStatus.UNAUTHORIZED);
+
+      expect(loginRes.body).toEqual(
+        expect.objectContaining({
+          message: expect.anything(),
+        })
+      );
+    });
+
+    test("should return 500 for server error during logging in", async () => {
+      const mockUser = jest
+        .spyOn(userService, "loginUser")
+        .mockRejectedValue(new Error("Internal Server Error"));
+      const res = await request(app).post("/v1/auth/register").send(newUser);
+      const mockUserData = {
+        email: res.body.user.email,
+        otp: res.body.user.otp,
+      };
+      await request(app).post("/v1/auth/verify").send(mockUserData);
+
+      const loginRes = await request(app)
+        .post("/v1/auth/login")
+        .send({ email: res.body.user.email, password: newUser.password });
+
+      // Expecting a 500 Internal Server Error due to a server-side issue
+      expect(loginRes.status).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+
+      // Check if the response contains the correct error message
+      expect(loginRes.body.message).toBe("Internal Server Error");
+
+      mockUser.mockRestore();
+    });
+  });
+
+  describe("POST /v1/auth/forgot-password", () => {
+    let newUser;
+    beforeEach(() => {
+      newUser = {
+        email: faker.internet.email().toLowerCase(),
+        password: "password1",
+      };
+    });
+    describe("POST /v1/auth/forgot-password", () => {
+      test("should return 200 on successfully sending the change password request", async () => {
+        const res = await request(app).post("/v1/auth/register").send(newUser);
+        const mockUser = {
+          email: res.body.user.email,
+          otp: res.body.user.otp,
+        };
+
+        // Expect sendEmail to be called with the newUser's email
+        expect(sendEmail).toHaveBeenCalledWith(newUser.email);
+
+        const verificationRes = await request(app)
+          .post("/v1/auth/verify")
+          .send(mockUser);
+        expect(verificationRes.status).toBe(httpStatus.CREATED);
+
+        const changePasswordRes = await request(app)
+          .post("/v1/auth/forgot-password")
+          .send(newUser);
+
+        expect(changePasswordRes.status).toBe(httpStatus.OK);
+      });
+
+      test("should return 400 if OTP is not verified using POST /verify request", async () => {
+        const res = await request(app).post("/v1/auth/register").send(newUser);
+        const mockUser = {
+          email: res.body.user.email,
+          otp: res.body.user.otp,
+        };
+
+        const changePasswordRes = await request(app)
+          .post("/v1/auth/forgot-password")
+          .send(newUser);
+
+        expect(changePasswordRes.status).toBe(httpStatus.BAD_REQUEST);
+      });
+
+      test("should return 400 if mail is not correct", async () => {
+        const res = await request(app).post("/v1/auth/register").send(newUser);
+        const mockUser = {
+          email: res.body.user.email,
+          otp: res.body.user.otp,
+        };
+        const verificationRes = await request(app)
+          .post("/v1/auth/verify")
+          .send(mockUser);
+        expect(verificationRes.status).toBe(httpStatus.CREATED);
+
+        const changePasswordRes = await request(app)
+          .post("/v1/auth/forgot-password")
+          .send({ ...newUser, email: "liam@gmail.com" });
+
+        expect(changePasswordRes.status).toBe(httpStatus.BAD_REQUEST);
+      });
+
+      test("should return 500 for server error during OTP generation for reset", async () => {
+        const mockUser = jest
+          .spyOn(userService, "verifyUser")
+          .mockRejectedValue(new Error("Internal Server Error"));
+
+        const res = await request(app).post("/v1/auth/verify").send(newUser);
+
+        // Expecting a 500 Internal Server Error due to a server-side issue
+        expect(res.status).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+
+        // Check if the response contains the correct error message
+        expect(res.body.message).toBe("Internal Server Error");
+
+        mockUser.mockRestore();
+      });
     });
   });
 });
