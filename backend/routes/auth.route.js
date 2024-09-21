@@ -4,7 +4,8 @@ const {
   postRegister,
   postLogin,
   verifyRegister,
-  postForgotPassword
+  postForgotPassword,
+  resetPassword
 } = require('../controllers/auth.controller')
 
 app.get('/auth', (req, res) => {
@@ -17,6 +18,7 @@ app.post('/auth/verify', verifyRegister)
 app.post('/auth/login', userValidation.body, postLogin)
 
 app.post('/auth/forgot-password', postForgotPassword)
+app.post('/auth/reset-password', resetPassword)
 // app.post("auth/reset-password", resetPassword);
 
 module.exports = app
