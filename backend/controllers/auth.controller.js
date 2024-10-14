@@ -111,9 +111,16 @@ const resetPassword = async (req, res) => {
       return res.status(401).json({ message: "Invalid or expired OTP" });
     }
     await verifyUser(user);
-
+    const token = await generateAuthenticationToken(user);
     const response = extractResponse(user);
-    return res.status(200).json(response);
+
+    res.cookie("token", token.access.token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "Lax",
+      expires: new Date(token.access.expires),
+    });
+    return res.status(200).json({ user: response, token });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -121,7 +128,7 @@ const resetPassword = async (req, res) => {
 
 // Test for integration verified using pre-performed function
 const confirmPassword = async (req, res) => {
-  const { email, newPassword } = req.body;
+  const { email, password } = req.body;
 
   try {
     const user = await userService.verifyUser(email);
@@ -130,7 +137,7 @@ const confirmPassword = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    user.password = newPassword;
+    user.password = password;
     await user.save();
 
     console.log(user);

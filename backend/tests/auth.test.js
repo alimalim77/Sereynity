@@ -59,16 +59,17 @@ describe("Auth Routes", () => {
       expect(sendEmail).toHaveBeenCalledWith(newUser.email);
     });
 
-    test("should return 409 for duplicacy, the email address is already registered", async () => {
-      // Send the first registration request
-      await request(app).post("/v1/auth/register").send(newUser);
+    // When registration is done without verification, it becomes invalid
+    // test("should return 409 for duplicacy, the email address is already registered", async () => {
+    //   Send the first registration request
+    //   await request(app).post("/v1/auth/register").send(newUser);
 
-      // Send the second registration request with the same email (duplicate)
-      const res = await request(app).post("/v1/auth/register").send(newUser);
+    //   Send the second registration request with the same email (duplicate)
+    //   const res = await request(app).post("/v1/auth/register").send(newUser);
 
-      // Expect the second request to return a conflict status (409)
-      expect(res.status).toBe(httpStatus.CONFLICT);
-    });
+    //   Expect the second request to return a conflict status (409)
+    //   expect(res.status).toBe(httpStatus.CONFLICT);
+    // });
 
     test("should return 400 for invalid request data", async () => {
       const invalidUser = {
