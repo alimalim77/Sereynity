@@ -2,6 +2,7 @@ const userService = require("../services/auth.service");
 const { sendEmail } = require("../utils/nodemail.util");
 const { generateAuthenticationToken } = require("../services/token.service");
 const { User } = require("../models/user.model");
+const jwt = require("jsonwebtoken");
 
 const postRegister = async (req, res) => {
   try {
@@ -130,9 +131,23 @@ const resetPassword = async (req, res) => {
 const confirmPassword = async (req, res) => {
   const { email, password } = req.body;
 
+  const authHeader = req.headers.authorization.split(" ")[1];
+  if (!authHeader) {
+    return res.status(401).json({ message: "Token required" });
+  }
+
   try {
     const user = await userService.verifyUser(email);
 
+    const secretKey = process.env.JWT_SECRET;
+    if (!secretKey) {
+      return res.status(404).json({ message: "Invalid Key Error" });
+    }
+
+    const decoded = jwt.verify(authHeader, secretKey);
+
+    const userId = decoded.userId; // Replace with the actual claim you use for user identification
+    console.log(userId, user._id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
