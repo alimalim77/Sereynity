@@ -146,8 +146,8 @@ const confirmPassword = async (req, res) => {
 
     const decoded = jwt.verify(authHeader, secretKey);
 
-    const userId = decoded.userId; // Replace with the actual claim you use for user identification
-    console.log(userId, user._id);
+    const userId = decoded.sub;
+    // console.log(userId, user._id.toString());
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -155,7 +155,6 @@ const confirmPassword = async (req, res) => {
     user.password = password;
     await user.save();
 
-    console.log(user);
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     console.error("Error updating password", error);
