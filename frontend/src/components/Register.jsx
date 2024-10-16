@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { trigger } from "../redux/authenticationSlice";
 import {
   Box,
   Button,
@@ -21,6 +23,8 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false); // Loading state
   const navigate = useNavigate();
   const { colorMode } = useColorMode(); // Get the current color mode
+  const isAuthenticated = useSelector((state) => state.authentication.value);
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -36,6 +40,7 @@ const Register = () => {
         formData
       );
       alert("Registration successful. Please check your email for OTP.");
+      dispatch(trigger(isAuthenticated));
       navigate("/verify", { state: { email: formData.email } });
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred");
