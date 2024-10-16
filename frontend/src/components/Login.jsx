@@ -35,7 +35,8 @@ const Login = () => {
         formData
       );
       alert("Login successful", res.data);
-      localStorage.setItem("token", res.data.token.access.token);
+      sessionStorage.setItem("token", res.data.token.access.token);
+      window.dispatchEvent(new Event("login"));
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials");

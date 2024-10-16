@@ -21,10 +21,12 @@ const ChangePassword = () => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode(); // Get the current color mode
 
+  console.log("Token:", token, "Expires:", expires); // Debugging
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Hello");
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -43,17 +45,24 @@ const ChangePassword = () => {
     try {
       const email = localStorage.getItem("forgotEmail"); // Get email from local storage
       await axios.post(
-        "process.env.REACT_APP_URI/v1/auth/confirm-password",
+        `${process.env.REACT_APP_URI}/v1/auth/confirm-password`,
         {
           email: email,
           password: password, // Only send one password (since both are validated to be the same)
         },
         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           withCredentials: true,
         }
       );
-      // alert("Password changed successfully!");
-      // navigate("/login"); // Redirect to login page after success
+      alert("Password changed successfully!");
+
+      // Set token in sessionStorage if it exists
+      sessionStorage.setItem("token", token);
+
+      navigate("/login"); // Redirect to login page after success
     } catch (err) {
       setError(err.response?.data?.message || "Error changing password");
     }

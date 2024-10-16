@@ -6,7 +6,6 @@ import Login from "./components/Login";
 import VerifyOTP from "./components/VerifyOTP";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
-import Home from "./components/Home";
 import ConfirmPassword from "./components/ConfirmPassword";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Navbar from "./components/Navbar/Navbar";
@@ -18,8 +17,7 @@ function App() {
       <div className="App">
         <Navbar />
         <Routes>
-          <Route path="/" element={<Dashboard />} /> {/* Home Route */}
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/verify" element={<VerifyOTP />} />
