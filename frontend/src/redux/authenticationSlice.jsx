@@ -7,10 +7,13 @@ const authenticationSlice = createSlice({
   },
   reducers: {
     trigger: (state) => {
-      state.value = !state.value;
+      state.value = true;
+    },
+    reset: (state) => {
+      state.value = false;
     },
   },
 });
 
-export const { trigger } = authenticationSlice.actions;
+export const { trigger, reset } = authenticationSlice.actions;
 export default authenticationSlice.reducer;

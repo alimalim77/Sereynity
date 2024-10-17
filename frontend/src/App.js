@@ -12,7 +12,6 @@ import Navbar from "./components/Navbar/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Meditation from "./components/Meditation/Meditation";
 import { useSelector, useDispatch } from "react-redux";
-import { trigger } from "./redux/authenticationSlice";
 import "./App.css";
 
 function App() {
@@ -36,7 +35,16 @@ function App() {
             }
           />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
+          <Route
+            path="/reset-password"
+            element={
+              <ProtectedRoute
+                element={<ResetPassword />}
+                isAuthenticated={isAuthenticated}
+              />
+            }
+          />
           <Route path="/confirm-password" element={<ConfirmPassword />} />
           <Route path="/meditation" element={<Meditation />} />
         </Routes>

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+
 import {
   Box,
   Button,
@@ -20,8 +21,6 @@ const ChangePassword = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { colorMode } = useColorMode(); // Get the current color mode
-
-  console.log("Token:", token, "Expires:", expires); // Debugging
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -67,6 +66,10 @@ const ChangePassword = () => {
       setError(err.response?.data?.message || "Error changing password");
     }
   };
+
+  useEffect(() => {
+    if (!(token && expires)) navigate("/login");
+  }, []);
 
   return (
     <Box
