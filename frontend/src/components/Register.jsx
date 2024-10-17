@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { trigger } from "../redux/authenticationSlice";
+import { trigger, reset } from "../redux/authenticationSlice";
 import {
   Box,
   Button,
@@ -48,6 +48,10 @@ const Register = () => {
       setIsLoading(false); // Stop loading
     }
   };
+
+  useEffect(() => {
+    dispatch(reset(isAuthenticated));
+  }, []);
 
   return (
     <Box

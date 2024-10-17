@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { trigger, reset } from "../redux/authenticationSlice";
 import {
   Box,
   Button,
@@ -19,6 +21,8 @@ const ForgotPassword = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { colorMode } = useColorMode(); // Get the current color mode
+  const isAuthenticated = useSelector((state) => state.authentication.value);
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,11 +32,16 @@ const ForgotPassword = () => {
       });
       localStorage.setItem("forgotEmail", email); // Save email to local storage
       setMessage("Password reset email sent. Please check your inbox.");
+      dispatch(trigger(isAuthenticated));
       navigate("/reset-password"); // Redirect to reset password page
     } catch (err) {
       setError(err.response?.data?.message || "Error sending reset email");
     }
   };
+
+  useEffect(() => {
+    dispatch(reset(isAuthenticated));
+  }, []);
 
   return (
     <Box
