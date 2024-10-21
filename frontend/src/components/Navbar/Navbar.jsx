@@ -46,7 +46,15 @@ const Navbar = () => {
   };
 
   return (
-    <Box bg={colorMode === "light" ? "purple.100" : "purple.900"} px={8}>
+    <Box
+      bg={colorMode === "light" ? "purple.100" : "purple.900"}
+      px={8}
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      zIndex="sticky"
+    >
       <Flex
         h="70px" // Fixed height for the navbar
         alignItems="center"

@@ -111,10 +111,6 @@ const Dashboard = () => {
             </VStack>
           </GridItem>
         </SimpleGrid>
-
-        {/* <Button colorScheme="red" mt={10} width="full" onClick={handleLogout}>
-          Logout
-        </Button> */}
       </VStack>
     </Box>
   );
