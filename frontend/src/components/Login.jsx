@@ -13,14 +13,15 @@ import {
   Spinner,
   Center,
   useColorMode,
+  useToast,
 } from "@chakra-ui/react";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { colorMode } = useColorMode(); // Get the current color mode
+  const { colorMode } = useColorMode();
+  const toast = useToast();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,18 +29,30 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_URI}/v1/auth/login`,
         formData
       );
-      alert("Login successful", res.data);
+      toast({
+        title: "Login Successful",
+        description: "You have successfully logged in.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
       sessionStorage.setItem("token", res.data.token.access.token);
       window.dispatchEvent(new Event("login"));
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials");
+      toast({
+        title: "Login Failed",
+        description: err.response?.data?.message || "Invalid credentials",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +65,7 @@ const Login = () => {
       alignItems="center"
       height="100vh"
       position="relative"
-      bg={colorMode === "light" ? "white" : "gray.800"} // Background color
+      bg={colorMode === "light" ? "white" : "gray.800"}
     >
       {isLoading && (
         <Center
@@ -74,9 +87,9 @@ const Login = () => {
         boxShadow="lg"
         p={6}
         borderRadius="md"
-        bg={colorMode === "light" ? "white" : "gray.700"} // Card background color
+        bg={colorMode === "light" ? "white" : "gray.700"}
         zIndex="base"
-        opacity={isLoading ? 0.4 : 1} // Reduce opacity when loading
+        opacity={isLoading ? 0.4 : 1}
       >
         <Heading color={colorMode === "light" ? "black" : "white"}>
           Login
@@ -91,8 +104,8 @@ const Login = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              isDisabled={isLoading} // Disable input when loading
-              variant="flushed" // Optional: Change the input style
+              isDisabled={isLoading}
+              variant="flushed"
             />
           </FormControl>
           <FormControl id="password" isRequired mt={4}>
@@ -104,8 +117,8 @@ const Login = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              isDisabled={isLoading} // Disable input when loading
-              variant="flushed" // Optional: Change the input style
+              isDisabled={isLoading}
+              variant="flushed"
             />
           </FormControl>
           <Button
@@ -113,19 +126,18 @@ const Login = () => {
             colorScheme="blue"
             mt={4}
             width="full"
-            isLoading={isLoading} // Show loading spinner in the button
+            isLoading={isLoading}
           >
             Login
           </Button>
         </form>
-        {error && <Text color="red.500">{error}</Text>}
 
         {/* Reset Password Link */}
         <Text
           mt={4}
           color="blue.500"
           cursor="pointer"
-          onClick={() => navigate("/forgot-password")} // Change to your reset password route
+          onClick={() => navigate("/forgot-password")}
         >
           Forgot your password? Reset it here.
         </Text>

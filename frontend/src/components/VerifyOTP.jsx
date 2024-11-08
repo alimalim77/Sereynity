@@ -2,24 +2,24 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useToast } from "@chakra-ui/react";
 import {
   Box,
   Button,
   Heading,
   Input,
   HStack,
-  Text,
   VStack,
   useColorMode,
 } from "@chakra-ui/react";
 
 const VerifyOTP = () => {
   const [otp, setOtp] = useState(new Array(6).fill(""));
-  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const location = useLocation(); // Extract location
+  const location = useLocation();
   const email = location.state?.email;
-  const { colorMode } = useColorMode(); // Get the current color mode
+  const { colorMode } = useColorMode();
+  const toast = useToast();
 
   const handleChange = (element, index) => {
     const value = element.value;
@@ -54,10 +54,24 @@ const VerifyOTP = () => {
           otp: otpCode,
         }
       );
-      alert("OTP verified successfully");
+      toast({
+        title: "Success",
+        description: "OTP verified successfully",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
       navigate("/login"); // Redirect to homepage or dashboard after successful OTP verification
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid OTP");
+      const errorMessage =
+        err.response?.data?.message || "Invalid or expired OTP";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -65,53 +79,51 @@ const VerifyOTP = () => {
     <Box
       maxW="sm"
       mx="auto"
+      mt="80px" // Add top margin to push content below navbar
       py={10}
       px={6}
-      bg={colorMode === "light" ? "white" : "gray.800"} // Dynamic background color
+      bg="gray.800"
       borderRadius="md"
       boxShadow="lg"
     >
-      <Heading
-        as="h2"
-        size="lg"
-        textAlign="center"
-        mb={6}
-        color={colorMode === "light" ? "black" : "white"}
-      >
+      <Heading as="h2" size="lg" textAlign="center" mb={6} color="white">
         Verify OTP
       </Heading>
       <form onSubmit={handleSubmit}>
-        <VStack spacing={4} align="center">
-          <HStack justify="center">
+        <VStack spacing={6} align="center">
+          <HStack justify="center" spacing={2}>
             {otp.map((data, index) => (
               <Input
-                type="tel"
-                name="otp"
                 key={index}
+                type="tel"
                 value={data}
                 onChange={(e) => handleChange(e.target, index)}
                 maxLength="1"
-                width="40px"
-                height="40px"
+                width="50px"
+                height="50px"
                 textAlign="center"
                 fontSize="xl"
-                variant="outline"
-                focusBorderColor="blue.500"
-                autoComplete="off"
+                variant="filled"
+                bg="gray.700"
+                color="white"
+                borderRadius="md"
+                _focus={{
+                  bg: "gray.600",
+                  borderColor: "blue.300",
+                }}
                 required
-                color={colorMode === "light" ? "black" : "white"} // Input text color
-                bg={colorMode === "light" ? "gray.200" : "gray.600"} // Input background color
               />
             ))}
           </HStack>
-          <Button colorScheme="blue" type="submit" width="100%">
+          <Button
+            colorScheme="blue"
+            type="submit"
+            width="100%"
+            size="lg"
+            fontSize="md"
+          >
             Verify OTP
           </Button>
-          {error && (
-            <Text color="red.500" fontSize="sm">
-              {error}
-            </Text>
-          )}
         </VStack>
       </form>
     </Box>

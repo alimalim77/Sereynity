@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -17,12 +18,22 @@ import {
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { colorMode } = useColorMode(); // Get the current color mode
+  const { colorMode } = useColorMode();
   const isAuthenticated = useSelector((state) => state.authentication.value);
   const dispatch = useDispatch();
+  const toast = useToast();
+
+  const showNotification = (title, description, status) => {
+    toast({
+      title: title,
+      description: description,
+      status: status,
+      duration: 3000,
+      isClosable: true,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,12 +41,17 @@ const ForgotPassword = () => {
       await axios.post(`${process.env.REACT_APP_URI}/v1/auth/forgot-password`, {
         email,
       });
-      localStorage.setItem("forgotEmail", email); // Save email to local storage
-      setMessage("Password reset email sent. Please check your inbox.");
+      localStorage.setItem("forgotEmail", email);
+      showNotification(
+        "Password reset email sent",
+        "Please check your inbox.",
+        "success"
+      );
       dispatch(trigger(isAuthenticated));
-      navigate("/reset-password"); // Redirect to reset password page
+      navigate("/reset-password");
     } catch (err) {
-      setError(err.response?.data?.message || "Error sending reset email");
+      console.log(err);
+      setError(err.response?.data?.message);
     }
   };
 
@@ -49,7 +65,7 @@ const ForgotPassword = () => {
       justifyContent="center"
       alignItems="center"
       height="100vh"
-      bg={colorMode === "light" ? "gray.100" : "gray.800"} // Background color
+      bg={colorMode === "light" ? "gray.100" : "gray.800"}
       p={4}
     >
       <VStack
@@ -59,7 +75,7 @@ const ForgotPassword = () => {
         boxShadow="lg"
         p={6}
         borderRadius="md"
-        bg={colorMode === "light" ? "white" : "gray.700"} // Card background color
+        bg={colorMode === "light" ? "white" : "gray.700"}
       >
         <Heading color={colorMode === "light" ? "black" : "white"} size="lg">
           Forgot Password
@@ -75,16 +91,15 @@ const ForgotPassword = () => {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              bg={colorMode === "light" ? "white" : "gray.600"} // Input background color
-              color={colorMode === "light" ? "black" : "white"} // Input text color
+              bg={colorMode === "light" ? "white" : "gray.600"}
+              color={colorMode === "light" ? "black" : "white"}
             />
           </FormControl>
           <Button type="submit" colorScheme="blue" mt={4} width="full">
             Send Reset Email
           </Button>
         </form>
-        {message && <Text color="green.500">{message}</Text>}
-        {error && <Text color="red.500">{error}</Text>}
+        {error && showNotification("Error", error, "error")}
       </VStack>
     </Box>
   );

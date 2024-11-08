@@ -10,6 +10,7 @@ import {
   IconButton,
   useColorMode,
   Image,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { SunIcon, MoonIcon } from "@chakra-ui/icons";
@@ -19,6 +20,9 @@ const Navbar = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+
+  // Responsive button size
+  const buttonSize = useBreakpointValue({ base: "sm", md: "md" });
 
   // Check sessionStorage for the token
   useEffect(() => {
@@ -48,7 +52,7 @@ const Navbar = () => {
   return (
     <Box
       bg={colorMode === "light" ? "purple.100" : "purple.900"}
-      px={8}
+      px={4}
       position="fixed"
       top={0}
       left={0}
@@ -84,36 +88,36 @@ const Navbar = () => {
 
         <Spacer />
 
-        <HStack spacing={8} display={{ base: "none", md: "flex" }}>
+        <HStack spacing={4} display={{ base: "none", md: "flex" }}>
           {!isLoggedIn ? (
             <>
               <Button
                 as={RouterLink}
                 to="/register"
-                colorScheme="yellow" // Green button for Register
-                variant="solid" // Solid variant to ensure button is colored
-                fontSize="lg"
-                _hover={{ bg: "yellow.600" }} // Hover effect
+                colorScheme="yellow"
+                variant="solid"
+                size={buttonSize}
+                _hover={{ bg: "yellow.600" }}
               >
                 Register
               </Button>
               <Button
                 as={RouterLink}
                 to="/login"
-                colorScheme="purple" // Blue button for Login
-                variant="solid" // Solid variant to ensure button is colored
-                fontSize="lg"
-                _hover={{ bg: "purple.600" }} // Hover effect
+                colorScheme="purple"
+                variant="solid"
+                size={buttonSize}
+                _hover={{ bg: "purple.600" }}
               >
                 Login
               </Button>
             </>
           ) : (
             <Button
-              colorScheme="red" // Red button for Logout
+              colorScheme="red"
               variant="solid"
-              fontSize="lg"
-              _hover={{ bg: "blue.600" }} // Hover effect
+              size={buttonSize}
+              _hover={{ bg: "red.600" }}
               onClick={handleLogout}
             >
               Logout
@@ -122,10 +126,10 @@ const Navbar = () => {
           <Button
             as={RouterLink}
             to="/contact"
-            colorScheme="blue" // Teal button for Contact
+            colorScheme="blue"
             variant="solid"
-            fontSize="lg"
-            _hover={{ bg: "blue.600" }} // Hover effect
+            size={buttonSize}
+            _hover={{ bg: "blue.600" }}
           >
             Contact
           </Button>
@@ -145,14 +149,14 @@ const Navbar = () => {
         />
 
         {/* Mobile Menu */}
-        <HStack display={{ base: "flex", md: "none" }} spacing={4}>
+        <HStack display={{ base: "flex", md: "none" }} spacing={2}>
           <Button
             as={RouterLink}
             to="/"
-            size="sm"
+            size={buttonSize}
             colorScheme="blue"
-            variant="solid" // Applies color scheme properly
-            _hover={{ bg: "blue.600" }} // Hover effect for blue button
+            variant="solid"
+            _hover={{ bg: "blue.600" }}
           >
             Home
           </Button>
@@ -160,19 +164,19 @@ const Navbar = () => {
             <Button
               as={RouterLink}
               to="/login"
-              size="sm"
+              size={buttonSize}
               colorScheme="green"
               variant="solid"
-              _hover={{ bg: "yellow.600" }}
+              _hover={{ bg: "green.600" }}
             >
-              Register / Login
+              Login
             </Button>
           ) : (
             <Button
-              size="sm"
+              size={buttonSize}
               colorScheme="red"
-              variant="solid" // Ensures color scheme is applied
-              _hover={{ bg: "red.600" }} // Hover effect for red button
+              variant="solid"
+              _hover={{ bg: "red.600" }}
               onClick={handleLogout}
             >
               Logout
@@ -181,10 +185,10 @@ const Navbar = () => {
           <Button
             as={RouterLink}
             to="/contact"
-            size="sm"
+            size={buttonSize}
             colorScheme="teal"
-            variant="solid" // Consistent color scheme
-            _hover={{ bg: "teal.600" }} // Hover effect for teal button
+            variant="solid"
+            _hover={{ bg: "teal.600" }}
           >
             Contact
           </Button>

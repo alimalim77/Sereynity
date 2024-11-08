@@ -2,14 +2,7 @@ import React, { useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import {
-  Box,
-  Heading,
-  useColorModeValue,
-  Flex,
-  VStack,
-  Image,
-} from "@chakra-ui/react";
+import { Box, useColorModeValue, VStack } from "@chakra-ui/react";
 import {
   FaBrain,
   FaLeaf,
@@ -17,23 +10,49 @@ import {
   FaPagelines,
   FaEye,
   FaHeart,
-} from "react-icons/fa"; // Import icons
-import Serenity from "../../assets/serenity.jpeg";
-import Stopwatch from "../Stopwatch/Stopwatch"; // Import the Stopwatch component
+  FaSignInAlt,
+} from "react-icons/fa";
+import Stopwatch from "../Stopwatch/Stopwatch";
+import MeditationSounds from "./MeditationSounds";
 
 const Meditation = () => {
   const meditationForms = [
-    { name: "Mindfulness", icon: <FaBrain />, duration: 600 }, // 10 minutes
-    { name: "Transcendental", icon: <FaLeaf />, duration: 1200 }, // 20 minutes
-    { name: "Guided", icon: <FaHandsHelping />, duration: 900 }, // 15 minutes
-    { name: "Zen", icon: <FaPagelines />, duration: 1800 }, // 30 minutes
-    { name: "Vipassana", icon: <FaEye />, duration: 3600 }, // 60 minutes
-    { name: "Loving-kindness", icon: <FaHeart />, duration: 600 }, // 10 minutes
+    { name: "Mindfulness", icon: <FaBrain />, duration: 600 },
+    { name: "Transcendental", icon: <FaLeaf />, duration: 1200 },
+    { name: "Guided", icon: <FaHandsHelping />, duration: 900 },
+    { name: "Zen", icon: <FaPagelines />, duration: 1800 },
+    { name: "Vipassana", icon: <FaEye />, duration: 3600 },
+    { name: "Loving-kindness", icon: <FaHeart />, duration: 600 },
   ];
 
   const [currentMeditation, setCurrentMeditation] = useState(
     meditationForms[0]
   );
+  const bgColor = useColorModeValue("gray.100", "purple.800");
+  if (!sessionStorage.getItem("token")) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        h="100%"
+        fontFamily="Arial, sans-serif"
+      >
+        <FaSignInAlt size={24} />
+        <span
+          style={{
+            marginLeft: "8px",
+            fontSize: "18px",
+            fontWeight: "bold",
+            padding: "10px",
+          }}
+        >
+          Please log in to access meditation.
+        </span>
+      </Box>
+    ); // Display login message with icon
+  }
 
   const settings = {
     dots: true,
@@ -41,44 +60,47 @@ const Meditation = () => {
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    arrows: false,
+    arrows: true,
     afterChange: (index) => setCurrentMeditation(meditationForms[index]),
+    adaptiveHeight: true,
   };
 
-  const bgColor = useColorModeValue("gray.100", "purple.800");
-
   return (
-    <>
-      <Flex
-        direction="column"
-        h="100vh"
-        bg={bgColor}
-        overflow="hidden"
-        justify="space-between"
-        align="center"
-        pt="70px" // Add top padding to account for the navbar
-      >
-        <Box w="100%" maxW="600px" textAlign="center" mt={4}></Box>
-
-        <Box w="100%" maxW="600px" px={4}>
-          <Stopwatch
-            duration={currentMeditation.duration}
-            meditationType={currentMeditation.name}
-            icon={currentMeditation.icon}
-          />
-        </Box>
-
-        <Box w="100%" maxW="600px" h="100px" mb={4}>
-          <Slider {...settings}>
+    <Box
+      bg={bgColor}
+      h="100%"
+      w="100%"
+      overflow="hidden"
+      position="absolute"
+      top="70px"
+      left="0"
+      right="0"
+      bottom="0"
+    >
+      <VStack spacing={4} p={4}>
+        <MeditationSounds />
+        <Box w="100%" flex="1">
+          <Slider {...settings} style={{ height: "calc(100% - 100px)" }}>
             {meditationForms.map((form, index) => (
-              <Box key={index} textAlign="center" p={2}>
-                <Heading size="sm">{form.name}</Heading>
+              <Box
+                key={index}
+                h="100%"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                overflow="hidden"
+              >
+                <Stopwatch
+                  duration={form.duration}
+                  meditationType={form.name}
+                  icon={form.icon}
+                />
               </Box>
             ))}
           </Slider>
         </Box>
-      </Flex>
-    </>
+      </VStack>
+    </Box>
   );
 };
 

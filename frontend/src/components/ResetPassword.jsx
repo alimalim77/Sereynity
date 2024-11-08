@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@chakra-ui/react";
 import {
   Box,
   Button,
@@ -16,35 +17,41 @@ const ResetPassword = () => {
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { colorMode } = useColorMode(); // Get the current color mode
+  const { colorMode } = useColorMode();
+  const toast = useToast();
+
+  const showNotification = (title, description, status) => {
+    toast({
+      title: title,
+      description: description,
+      status: status,
+      duration: 3000,
+      isClosable: true,
+    });
+  };
 
   const handleChange = (element, index) => {
     const value = element.value;
 
-    // Ensure the input is a number (0-9)
     if (!/^\d$/.test(value) && value !== "") return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Move focus to the next input if a digit is entered
     if (value && element.nextSibling) {
       element.nextSibling.focus();
     }
 
-    // Handle backspace (when input is empty, move to the previous field)
     if (!value && element.previousSibling) {
       element.previousSibling.focus();
     }
   };
 
-  // Handle OTP submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const otpCode = Number(otp.join("")); // Combine the digits into a single string
-      // Send OTP to the backend for verification
+      const otpCode = Number(otp.join(""));
       const email = localStorage.getItem("forgotEmail");
 
       const response = await axios.post(
@@ -54,7 +61,7 @@ const ResetPassword = () => {
           otp: otpCode,
         }
       );
-      alert("OTP verified successfully!");
+      showNotification("Success", "OTP verified successfully!", "success");
       navigate("/confirm-password", {
         state: {
           token: response.data.token.access.token,
@@ -62,8 +69,7 @@ const ResetPassword = () => {
         },
       });
     } catch (err) {
-      console.error("Error:", err);
-      setError(err.response?.data?.message || "Invalid OTP");
+      showNotification("Invalid OTP", "Please try again.", "error");
     }
   };
 
@@ -83,7 +89,7 @@ const ResetPassword = () => {
         boxShadow="lg"
         p={6}
         borderRadius="md"
-        bg={colorMode === "light" ? "white" : "gray.700"} // Card background color
+        bg={colorMode === "light" ? "white" : "gray.700"}
       >
         <Heading color={colorMode === "light" ? "black" : "white"} size="lg">
           Verify OTP
@@ -106,8 +112,8 @@ const ResetPassword = () => {
                 focusBorderColor="blue.500"
                 autoComplete="off"
                 required
-                color={colorMode === "light" ? "black" : "white"} // Input text color
-                bg={colorMode === "light" ? "white" : "gray.600"} // Input background color
+                color={colorMode === "light" ? "black" : "white"}
+                bg={colorMode === "light" ? "white" : "gray.600"}
               />
             ))}
           </HStack>
@@ -115,7 +121,7 @@ const ResetPassword = () => {
             Verify OTP
           </Button>
         </form>
-        {error && <Text color="red.500">{error}</Text>}
+        {/* {error && showNotification("Error", error, "error")} */}
       </VStack>
     </Box>
   );

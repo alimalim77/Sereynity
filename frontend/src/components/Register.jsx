@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { trigger, reset } from "../redux/authenticationSlice";
+import { useToast } from "@chakra-ui/react";
 import {
   Box,
   Button,
@@ -10,7 +11,6 @@ import {
   FormControl,
   FormLabel,
   Heading,
-  Text,
   VStack,
   Spinner,
   Center,
@@ -18,13 +18,23 @@ import {
 } from "@chakra-ui/react";
 
 const Register = () => {
+  const toast = useToast();
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Loading state
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { colorMode } = useColorMode(); // Get the current color mode
+  const { colorMode } = useColorMode();
   const isAuthenticated = useSelector((state) => state.authentication.value);
   const dispatch = useDispatch();
+
+  const showNotification = (title, description, status) => {
+    toast({
+      title: title,
+      description: description,
+      status: status,
+      duration: 3000,
+      isClosable: true,
+    });
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,20 +42,32 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Start loading
-    setError(""); // Clear error before making the request
+    if (formData.password.length < 8) {
+      showNotification(
+        "Password Error",
+        "Password must be at least 8 characters long",
+        "error"
+      );
+      return;
+    }
+    setIsLoading(true);
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_URI}/v1/auth/register`,
         formData
       );
-      alert("Registration successful. Please check your email for OTP.");
+      showNotification(
+        "Verification Email Sent",
+        "Registered Successfully.",
+        "success"
+      );
       dispatch(trigger(isAuthenticated));
       navigate("/verify", { state: { email: formData.email } });
     } catch (err) {
-      setError(err.response?.data?.message || "An error occurred");
+      const errorMessage = err.response?.data?.message || "An error occurred";
+      showNotification("Registration Failed", errorMessage, "error");
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
     }
   };
 
@@ -60,7 +82,7 @@ const Register = () => {
       alignItems="center"
       height="100vh"
       position="relative"
-      bg={colorMode === "light" ? "white" : "gray.800"} // Background color
+      bg={colorMode === "light" ? "white" : "gray.800"}
     >
       {isLoading && (
         <Center
@@ -82,9 +104,9 @@ const Register = () => {
         boxShadow="lg"
         p={6}
         borderRadius="md"
-        bg={colorMode === "light" ? "white" : "gray.700"} // Card background color
+        bg={colorMode === "light" ? "white" : "gray.700"}
         zIndex="base"
-        opacity={isLoading ? 0.4 : 1} // Reduce opacity when loading
+        opacity={isLoading ? 0.4 : 1}
       >
         <Heading color={colorMode === "light" ? "black" : "white"}>
           Register
@@ -99,8 +121,8 @@ const Register = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              isDisabled={isLoading} // Disable input when loading
-              variant="flushed" // Optional: Change the input style
+              isDisabled={isLoading}
+              variant="flushed"
             />
           </FormControl>
           <FormControl id="password" isRequired mt={4}>
@@ -112,8 +134,8 @@ const Register = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              isDisabled={isLoading} // Disable input when loading
-              variant="flushed" // Optional: Change the input style
+              isDisabled={isLoading}
+              variant="flushed"
             />
           </FormControl>
           <Button
@@ -121,12 +143,11 @@ const Register = () => {
             colorScheme="blue"
             mt={4}
             width="full"
-            isLoading={isLoading} // Show loading spinner in the button
+            isLoading={isLoading}
           >
             Register
           </Button>
         </form>
-        {error && <Text color="red.500">{error}</Text>}
       </VStack>
     </Box>
   );

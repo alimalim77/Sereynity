@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { useToast } from "@chakra-ui/react";
 
 import {
   Box,
@@ -20,7 +21,17 @@ const ChangePassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { colorMode } = useColorMode(); // Get the current color mode
+  const { colorMode } = useColorMode();
+  const toast = useToast();
+  const showNotification = (title, description, status) => {
+    toast({
+      title: title,
+      description: description,
+      status: status,
+      duration: 3000,
+      isClosable: true,
+    });
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -33,21 +44,25 @@ const ChangePassword = () => {
 
     const expiresTimestampInSeconds = Math.floor(
       new Date(expires).getTime() / 1000
-    ); // Convert expires to epoch in seconds
-    const currentDateInSeconds = Math.floor(Date.now() / 1000); // Get the current date in epoch in seconds
+    );
+    const currentDateInSeconds = Math.floor(Date.now() / 1000);
     if (expiresTimestampInSeconds - 238 * 60 < currentDateInSeconds) {
       // Remove 238 minutes from the actual duration gap of 4 Hrs or write backend temporarily existing token code for changing password
-      alert("It took too long to submit, Kindly retry!");
+      showNotification(
+        "Error!",
+        "It took too long to submit, Kindly retry!",
+        "error"
+      );
       navigate("/forgot-password");
     }
 
     try {
-      const email = localStorage.getItem("forgotEmail"); // Get email from local storage
+      const email = localStorage.getItem("forgotEmail");
       await axios.post(
         `${process.env.REACT_APP_URI}/v1/auth/confirm-password`,
         {
           email: email,
-          password: password, // Only send one password (since both are validated to be the same)
+          password: password,
         },
         {
           headers: {
@@ -56,12 +71,11 @@ const ChangePassword = () => {
           withCredentials: true,
         }
       );
-      alert("Password changed successfully!");
+      showNotification("Success", "Password changed successfully!", "success");
 
-      // Set token in sessionStorage if it exists
       sessionStorage.setItem("token", token);
 
-      navigate("/login"); // Redirect to login page after success
+      navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Error changing password");
     }
@@ -77,7 +91,7 @@ const ChangePassword = () => {
       justifyContent="center"
       alignItems="center"
       height="100vh"
-      bg={colorMode === "light" ? "gray.100" : "gray.800"} // Background color
+      bg={colorMode === "light" ? "gray.100" : "gray.800"}
       p={4}
     >
       <VStack
@@ -87,7 +101,7 @@ const ChangePassword = () => {
         boxShadow="lg"
         p={6}
         borderRadius="md"
-        bg={colorMode === "light" ? "white" : "gray.700"} // Card background color
+        bg={colorMode === "light" ? "white" : "gray.700"}
       >
         <Heading color={colorMode === "light" ? "black" : "white"} size="lg">
           Change Password

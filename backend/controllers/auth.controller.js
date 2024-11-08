@@ -78,6 +78,7 @@ const postLogin = async (req, res) => {
 const postForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
+    console.log(email);
     const user = await userService.verifyUser(email);
     if (!user || user.isVerified === undefined) {
       return res

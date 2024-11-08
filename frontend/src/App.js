@@ -1,6 +1,7 @@
 // src/App.js
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Box } from "@chakra-ui/react";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import VerifyOTP from "./components/VerifyOTP";
@@ -18,37 +19,45 @@ function App() {
   const isAuthenticated = useSelector((state) => state.authentication.value);
   return (
     <Router>
-      <div className="App">
+      <Box
+        className="App"
+        height="100vh"
+        display="flex"
+        flexDirection="column"
+        overflow="hidden"
+      >
         <Navbar />
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          {/* <Route path="/verify" element={<VerifyOTP />} /> */}
-          <Route
-            path="/verify"
-            element={
-              <ProtectedRoute
-                element={<VerifyOTP />}
-                isAuthenticated={isAuthenticated}
-              />
-            }
-          />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
-          <Route
-            path="/reset-password"
-            element={
-              <ProtectedRoute
-                element={<ResetPassword />}
-                isAuthenticated={isAuthenticated}
-              />
-            }
-          />
-          <Route path="/confirm-password" element={<ConfirmPassword />} />
-          <Route path="/meditation" element={<Meditation />} />
-        </Routes>
-      </div>
+        <Box flex="1" position="relative">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            {/* <Route path="/verify" element={<VerifyOTP />} /> */}
+            <Route
+              path="/verify"
+              element={
+                <ProtectedRoute
+                  element={<VerifyOTP />}
+                  isAuthenticated={isAuthenticated}
+                />
+              }
+            />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
+            <Route
+              path="/reset-password"
+              element={
+                <ProtectedRoute
+                  element={<ResetPassword />}
+                  isAuthenticated={isAuthenticated}
+                />
+              }
+            />
+            <Route path="/confirm-password" element={<ConfirmPassword />} />
+            <Route path="/meditation" element={<Meditation />} />
+          </Routes>
+        </Box>
+      </Box>
     </Router>
   );
 }
