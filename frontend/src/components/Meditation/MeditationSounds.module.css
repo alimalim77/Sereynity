@@ -1,0 +1,70 @@
+.soundsContainer {
+    margin-top: 1rem;
+  }
+  
+  .soundButton {
+    font-weight: bold;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .soundButton.active {
+    color: white !important;
+  }
+  
+  .soundButton::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: all 0.5s;
+    z-index: -1;
+  }
+  
+  .soundButton.rain::before {
+    background: linear-gradient(45deg, #4299E1, #2B6CB0);
+  }
+  
+  .soundButton.ocean::before {
+    background: linear-gradient(45deg, #00B5D8, #0987A0);
+  }
+  
+  .soundButton.forest::before {
+    background: linear-gradient(45deg, #48BB78, #2F855A);
+  }
+  
+  .soundButton.singingbowl::before {
+    background: linear-gradient(45deg, #726c32, #a08029);
+  }
+  
+  .soundButton.bowl::before {
+    background: linear-gradient(45deg, #726417, #a08029);
+  }
+  
+  .soundButton:hover::before {
+    top: 0;
+  }
+  
+  .soundButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .soundIcon {
+    margin-left: 1rem;
+  }
+  
+  .soundGrid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }

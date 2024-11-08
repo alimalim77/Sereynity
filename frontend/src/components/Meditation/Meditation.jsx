@@ -2,7 +2,17 @@ import React, { useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { Box, useColorModeValue, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  useColorModeValue,
+  VStack,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Text,
+} from "@chakra-ui/react";
 import {
   FaBrain,
   FaLeaf,
@@ -14,8 +24,11 @@ import {
 } from "react-icons/fa";
 import Stopwatch from "../Stopwatch/Stopwatch";
 import MeditationSounds from "./MeditationSounds";
+import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
+import styles from "./Meditation.module.css";
 
 const Meditation = () => {
+  const [isSoundPlaying, setIsSoundPlaying] = useState(false);
   const meditationForms = [
     { name: "Mindfulness", icon: <FaBrain />, duration: 600 },
     { name: "Transcendental", icon: <FaLeaf />, duration: 1200 },
@@ -29,6 +42,7 @@ const Meditation = () => {
     meditationForms[0]
   );
   const bgColor = useColorModeValue("gray.100", "purple.800");
+
   if (!sessionStorage.getItem("token")) {
     return (
       <Box
@@ -51,7 +65,7 @@ const Meditation = () => {
           Please log in to access meditation.
         </span>
       </Box>
-    ); // Display login message with icon
+    );
   }
 
   const settings = {
@@ -67,6 +81,7 @@ const Meditation = () => {
 
   return (
     <Box
+      className={styles.container}
       bg={bgColor}
       h="100%"
       w="100%"
@@ -78,7 +93,22 @@ const Meditation = () => {
       bottom="0"
     >
       <VStack spacing={4} p={4}>
-        <MeditationSounds />
+        <Accordion className={styles.accordionWrapper} allowToggle w="100%">
+          <AccordionItem className={styles.accordionItem}>
+            <AccordionButton className={styles.accordionButton}>
+              <Box className={styles.soundTitleContainer}>
+                <span className={styles.soundIcon}>
+                  {isSoundPlaying ? <FaVolumeUp /> : <FaVolumeMute />}
+                </span>
+                <Text>Ambient Sounds</Text>
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+            <AccordionPanel className={styles.accordionPanel}>
+              <MeditationSounds onSoundStateChange={setIsSoundPlaying} />
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
         <Box w="100%" flex="1">
           <Slider {...settings} style={{ height: "calc(100% - 100px)" }}>
             {meditationForms.map((form, index) => (

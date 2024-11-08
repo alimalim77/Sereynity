@@ -7,11 +7,12 @@ import {
   Text,
   useColorMode,
 } from "@chakra-ui/react";
-import { FaVolumeUp, FaVolumeMute, FaBell } from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
 import { WiRain, WiTsunami } from "react-icons/wi";
 import { GiForestCamp } from "react-icons/gi";
+import styles from "./MeditationSounds.module.css";
 
-const MeditationSounds = () => {
+const MeditationSounds = ({ onSoundStateChange }) => {
   const [activeSound, setActiveSound] = useState(null);
   const audioRef = useRef(null);
   const { colorMode } = useColorMode();
@@ -35,13 +36,20 @@ const MeditationSounds = () => {
       url: "/sounds/forest.wav",
       icon: <GiForestCamp />,
     },
-    { id: 4, name: "Singing Bowl", url: "/sounds/bowl.wav", icon: <FaBell /> },
+    {
+      id: 4,
+      name: "Singing Bowl",
+      url: "/sounds/singing-bowl.wav",
+      icon: <FaBell />,
+    },
   ];
 
+  // Add to handleSoundClick
   const handleSoundClick = (sound) => {
     if (activeSound === sound.id) {
       audioRef.current?.pause();
       setActiveSound(null);
+      onSoundStateChange(false);
     } else {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -50,29 +58,45 @@ const MeditationSounds = () => {
       audioRef.current.loop = true;
       audioRef.current.play();
       setActiveSound(sound.id);
+      onSoundStateChange(true);
     }
   };
 
+  const getSoundColor = (soundName, isActive) => {
+    const colors = {
+      Rain: { base: "blue.400", active: "blue.600" },
+      Ocean: { base: "cyan.400", active: "cyan.600" },
+      Forest: { base: "green.400", active: "green.600" },
+      "Singing Bowl": { base: "purple.400", active: "yellow.600" },
+    };
+    return isActive ? colors[soundName].active : colors[soundName].base;
+  };
+
   return (
-    <Box mt={4}>
-      <Text
-        fontSize="lg"
-        mb={2}
-        color={colorMode === "dark" ? "white" : "black"}
-        fontWeight="bold"
-      >
-        Ambient Sounds
-      </Text>
-      <SimpleGrid columns={[2, 2, 4]} spacing={4}>
+    <Box className={styles.soundsContainer}>
+      <SimpleGrid className={styles.soundGrid}>
         {sounds.map((sound) => (
           <Button
             key={sound.id}
+            className={`${styles.soundButton} ${
+              styles[sound.name.toLowerCase().replace(/\s+/g, "")]
+            } ${activeSound === sound.id ? styles.active : ""}`}
             onClick={() => handleSoundClick(sound)}
-            colorScheme={activeSound === sound.id ? "green" : "gray"}
+            color={
+              activeSound === sound.id
+                ? "white"
+                : colorMode === "dark"
+                ? "gray.100"
+                : "gray.800"
+            }
             rightIcon={sound.icon}
             iconSpacing="1rem"
             size="md"
             fontWeight="bold"
+            _active={{
+              transform: "translateY(1px)",
+            }}
+            transition="all 0.5s"
           >
             {sound.name}
           </Button>

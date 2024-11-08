@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button, Text, VStack, Progress, Center } from "@chakra-ui/react";
+import styles from "./Stopwatch.module.css";
 
 const Stopwatch = ({ duration, meditationType, icon }) => {
   const [time, setTime] = useState(0);
@@ -49,31 +50,27 @@ const Stopwatch = ({ duration, meditationType, icon }) => {
   const progress = (time / duration) * 100;
 
   return (
-    <VStack
-      spacing={4}
-      align="center"
-      w="100%"
-      h="100%"
-      justify="center"
-      p={4}
-      overflow="hidden"
-    >
-      <Center fontSize={["3xl", "4xl", "5xl"]} color="yellow.500" mb={2}>
-        {icon}
-      </Center>
-      <Text fontSize={["md", "lg", "xl"]} fontWeight="bold" textAlign="center">
-        {meditationType} Meditation
-      </Text>
-      <Text fontSize={["xl", "2xl", "3xl"]} fontWeight="bold">
+    <VStack className={styles.container}>
+      <Center className={styles.meditationIcon}>{icon}</Center>
+      <Text className={styles.meditationType}>{meditationType} Meditation</Text>
+      <Text className={styles.timeDisplay}>
         {formatTime(time)} / {formatTime(duration)}
       </Text>
-      <Box w={["80%", "60%", "40%", "30%"]}>
+      <Box className={styles.progressContainer}>
         <Progress value={progress} w="100%" colorScheme="green" />
       </Box>
-      <Button onClick={startStop} colorScheme={isRunning ? "red" : "green"}>
+      <Button
+        className={styles.controlButton}
+        onClick={startStop}
+        colorScheme={isRunning ? "red" : "green"}
+      >
         {isRunning ? "Pause" : "Start"}
       </Button>
-      <Button onClick={reset} colorScheme="gray">
+      <Button
+        className={styles.controlButton}
+        onClick={reset}
+        colorScheme="gray"
+      >
         Reset
       </Button>
     </VStack>
