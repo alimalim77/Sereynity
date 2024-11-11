@@ -8,7 +8,10 @@ const registerUser = async ({ email, password }) => {
     return user;
   } catch (error) {
     if (error.code === 11000) {
-      const existingUser = await User.findOne({ email });
+      const existingUser = await User.findOne({ email }).populate({
+        path: "details",
+        select: "-userId",
+      });
       console.log(existingUser);
       if (existingUser) {
         if (!existingUser.isVerified) {
@@ -27,10 +30,11 @@ const registerUser = async ({ email, password }) => {
 
 const loginUser = async ({ email, password }) => {
   try {
-    const response = await User.findOne({ email: email });
-
+    const response = await User.findOne({ email: email }).populate({
+      path: "details",
+      select: "-userId",
+    });
     const checkPassword = await bcrypt.compare(password, response.password);
-
     return checkPassword && response.isVerified === true ? response : undefined;
   } catch (error) {
     throw new Error("Couldn't find user", error);
@@ -39,7 +43,10 @@ const loginUser = async ({ email, password }) => {
 
 const verifyUser = async (email) => {
   try {
-    const response = await User.findOne({ email });
+    const response = await User.findOne({ email }).populate({
+      path: "details",
+      select: "-userId",
+    });
     return response;
   } catch (error) {
     throw new Error("Couldn't find user", error);
@@ -48,7 +55,10 @@ const verifyUser = async (email) => {
 
 const findUser = async (id) => {
   try {
-    const response = await User.findById(id);
+    const response = await User.findById(id).populate({
+      path: "details",
+      select: "-userId",
+    });
     return response;
   } catch (error) {
     throw new Error("Couldn't find user", error);

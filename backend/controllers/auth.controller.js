@@ -3,6 +3,8 @@ const { sendEmail } = require("../utils/nodemail.util");
 const { generateAuthenticationToken } = require("../services/token.service");
 const { User } = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const { Details } = require("../models/details.model");
+const { colorfulName } = require("../utils/generate-random-name");
 
 const postRegister = async (req, res) => {
   try {
@@ -46,13 +48,29 @@ const verifyRegister = async (req, res) => {
 
     await verifyUser(user);
     const token = await generateAuthenticationToken(user);
+    await assignProfile(user, user._id);
 
-    const response = extractResponse(user);
+    // Fetch the updated user with populated details
+    const updatedUser = await userService.findUser(user._id);
+    const response = extractResponse(updatedUser);
 
     return res.status(201).json({ user: response, token });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
+};
+
+const assignProfile = async (user, id) => {
+  const details = new Details({
+    userId: id,
+    name: colorfulName,
+  });
+
+  const savedDetails = await details.save();
+
+  user.details = savedDetails._id;
+  await user.save();
+  return savedDetails;
 };
 
 const postLogin = async (req, res) => {
