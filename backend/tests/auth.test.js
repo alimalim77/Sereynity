@@ -3,7 +3,6 @@ require("dotenv").config({
 });
 const request = require("supertest");
 const { faker } = require("@faker-js/faker");
-const httpStatus = require("http-status");
 const httpMocks = require("node-mocks-http");
 const app = require("../index.js");
 const userService = require("../services/auth.service");
@@ -14,6 +13,16 @@ const { userOne, insertUsers } = require("./fixtures/user.fixture");
 const { userOneAccessToken } = require("./fixtures/token.fixture");
 const { describe } = require("node:test");
 const { sendEmail } = require("../utils/nodemail.util.js");
+
+const httpStatus = {
+  OK: 200,
+  CREATED: 201,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  INTERNAL_SERVER_ERROR: 500,
+};
 
 jest.mock("../utils/nodemail.util.js", () => ({
   sendEmail: jest.fn().mockResolvedValue({

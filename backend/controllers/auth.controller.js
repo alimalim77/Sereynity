@@ -1,7 +1,6 @@
 const userService = require("../services/auth.service");
 const { sendEmail } = require("../utils/nodemail.util");
 const { generateAuthenticationToken } = require("../services/token.service");
-const { User } = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const { Details } = require("../models/details.model");
 const { colorfulName } = require("../utils/generate-random-name");
@@ -14,13 +13,15 @@ const postRegister = async (req, res) => {
       password: password,
     });
     const { otp, expiresAt } = await sendEmail(email);
-    assignDetails(user, otp, expiresAt);
+    await assignDetails(user, otp, expiresAt);
 
     const response = extractResponse(user);
 
-    res
-      .status(201)
-      .send({ message: "User registered successfully", user: response });
+    if (!response) {
+      return res.status(500).send({ message: "Error processing user data" });
+    }
+
+    return res.status(201).json({ user: response });
   } catch (error) {
     if (error.message.includes("Duplicate Email")) {
       return res.status(409).send({ message: error.message });
@@ -98,7 +99,7 @@ const postForgotPassword = async (req, res) => {
     const { email } = req.body;
     console.log(email);
     const user = await userService.verifyUser(email);
-    if (!user || user.isVerified === undefined) {
+    if (!user || !user.isVerified) {
       return res
         .status(400)
         .send({ message: "Invalid email address or unauthorized" });
@@ -182,10 +183,19 @@ const confirmPassword = async (req, res) => {
 };
 
 const extractResponse = (user) => {
-  const { password, ...userWithoutPassword } = user.toObject
-    ? user.toObject()
-    : user;
-  return userWithoutPassword;
+  if (!user) return null;
+
+  const userObj = user.toObject ? user.toObject() : user;
+  const { password, ...userWithoutPassword } = userObj;
+
+  return {
+    _id: userObj._id,
+    email: userObj.email,
+    isVerified: userObj.isVerified,
+    otp: userObj.otp,
+    otpExpiresAt: userObj.otpExpiresAt,
+    details: userObj.details,
+  };
 };
 
 const verifyUser = async (user) => {
@@ -196,9 +206,13 @@ const verifyUser = async (user) => {
 };
 
 const assignDetails = async (user, otp, otpExpiresAt) => {
+  if (!user) return null;
+
   user.otp = otp;
   user.otpExpiresAt = otpExpiresAt;
+  user.isVerified = false;
   await user.save();
+  return user;
 };
 
 module.exports = {
