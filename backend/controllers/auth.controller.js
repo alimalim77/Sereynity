@@ -167,7 +167,6 @@ const confirmPassword = async (req, res) => {
     const decoded = jwt.verify(authHeader, secretKey);
 
     const userId = decoded.sub;
-    // console.log(userId, user._id.toString());
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

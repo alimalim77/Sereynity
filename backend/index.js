@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const router = require("./routes/auth.route");
+const router = require("./routes/index");
 const mongoose = require("mongoose");
 
 // Environment variables

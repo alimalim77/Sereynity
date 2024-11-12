@@ -15,37 +15,19 @@ import {
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { SunIcon, MoonIcon } from "@chakra-ui/icons";
 import Serenity from "../../assets/serenity.jpeg";
+import { useSelector, useDispatch } from "react-redux";
+import { trigger } from "../../redux/authenticationSlice";
 
 const Navbar = () => {
   const { colorMode, toggleColorMode } = useColorMode();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
-
-  // Responsive button size
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.authentication.value);
   const buttonSize = useBreakpointValue({ base: "sm", md: "md" });
-
-  // Check sessionStorage for the token
-  useEffect(() => {
-    const token = sessionStorage.getItem("token");
-    setIsLoggedIn(!!token); // Set isLoggedIn to true if token exists
-
-    // Listen for custom login event and update isLoggedIn state
-    const handleLoginEvent = () => {
-      const token = sessionStorage.getItem("token");
-      setIsLoggedIn(!!token);
-    };
-
-    window.addEventListener("login", handleLoginEvent);
-
-    // Cleanup event listener on unmount
-    return () => {
-      window.removeEventListener("login", handleLoginEvent);
-    };
-  }, []);
 
   const handleLogout = () => {
     sessionStorage.removeItem("token");
-    setIsLoggedIn(false); // Update the state so the UI reflects logout
+    dispatch(trigger(false));
     navigate("/login");
   };
 
@@ -89,7 +71,7 @@ const Navbar = () => {
         <Spacer />
 
         <HStack spacing={4} display={{ base: "none", md: "flex" }}>
-          {!isLoggedIn ? (
+          {!isAuthenticated ? (
             <>
               <Button
                 as={RouterLink}
@@ -125,13 +107,13 @@ const Navbar = () => {
           )}
           <Button
             as={RouterLink}
-            to="/contact"
+            to="/details"
             colorScheme="blue"
             variant="solid"
             size={buttonSize}
             _hover={{ bg: "blue.600" }}
           >
-            Contact
+            Details
           </Button>
         </HStack>
 
@@ -160,7 +142,7 @@ const Navbar = () => {
           >
             Home
           </Button>
-          {!isLoggedIn ? (
+          {!isAuthenticated ? (
             <Button
               as={RouterLink}
               to="/login"
@@ -184,13 +166,13 @@ const Navbar = () => {
           )}
           <Button
             as={RouterLink}
-            to="/contact"
+            to="/details"
             size={buttonSize}
             colorScheme="teal"
             variant="solid"
             _hover={{ bg: "teal.600" }}
           >
-            Contact
+            Details
           </Button>
         </HStack>
       </Flex>

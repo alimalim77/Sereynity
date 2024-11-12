@@ -8,30 +8,27 @@ import {
   Text,
   SimpleGrid,
   GridItem,
-  useColorMode, // Import useColorMode
-  useColorModeValue, // Import useColorModeValue
+  useColorMode,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  // Access the current color mode
   const { colorMode } = useColorMode();
 
-  // Background color based on color mode
   const bgColor = useColorModeValue("gray.100", "gray.800");
   const cardBgColor = useColorModeValue("white", "gray.700");
 
   // Dummy data for mental well-being activities or sections
   const recentActivities = [
-    "Completed a guided meditation session",
-    "Practiced deep breathing exercises",
-    "Journaling reflection on today’s feelings",
+    "✨ Completed a guided meditation session",
+    "🌬️ Practiced deep breathing exercises",
+    "📝 Journaling reflection on today's feelings",
   ];
 
   const handleLogout = () => {
-    // Clear session or token and redirect to login
     alert("Logged out successfully");
     navigate("/login");
   };
@@ -43,7 +40,7 @@ const Dashboard = () => {
       alignItems="center"
       height="100vh"
       p={4}
-      bg={bgColor} // Set background color based on color mode
+      bg={bgColor}
     >
       <VStack
         spacing={4}
@@ -52,22 +49,21 @@ const Dashboard = () => {
         boxShadow="lg"
         p={8}
         borderRadius="md"
-        bg={cardBgColor} // Set card background color based on color mode
+        bg={cardBgColor}
         align="flex-start"
       >
         <Heading color={colorMode === "dark" ? "white" : "black"}>
-          Welcome to Your Well-Being Dashboard
+          ✌️ Welcome to Your Well-Being Dashboard
         </Heading>
         <Text fontSize="lg" color={colorMode === "dark" ? "gray.300" : "black"}>
-          Here you can manage your mental well-being activities, view your
+          🌟 Here you can manage your mental well-being activities, view your
           progress, and find resources for self-care.
         </Text>
 
-        {/* Recent Activities Section */}
         <SimpleGrid columns={2} spacing={10} mt={6} w="full">
           <GridItem>
             <Heading size="md" color={colorMode === "dark" ? "white" : "black"}>
-              Recent Activities
+              🎯 Recent Activities
             </Heading>
             {recentActivities.map((activity, index) => (
               <Text
@@ -81,10 +77,9 @@ const Dashboard = () => {
             ))}
           </GridItem>
 
-          {/* Placeholder for another section, e.g., Resources or Recommendations */}
           <GridItem>
             <Heading size="md" color={colorMode === "dark" ? "white" : "black"}>
-              Quick Actions
+              ⚡ Quick Actions
             </Heading>
             <VStack mt={4} spacing={4}>
               <Button
@@ -92,21 +87,21 @@ const Dashboard = () => {
                 width="full"
                 onClick={() => navigate("/meditation")}
               >
-                Start a Meditation Session
+                🧘 Start a Meditation Session
               </Button>
               <Button
                 colorScheme="green"
                 width="full"
                 onClick={() => navigate("/breathing")}
               >
-                Practice Deep Breathing
+                💫 Practice Deep Breathing
               </Button>
               <Button
                 colorScheme="teal"
                 width="full"
                 onClick={() => navigate("/journal")}
               >
-                Journal Your Thoughts
+                ✍️ Journal Your Thoughts
               </Button>
             </VStack>
           </GridItem>

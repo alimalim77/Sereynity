@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { trigger } from "../redux/authenticationSlice";
 import {
   Box,
   Button,
@@ -22,6 +24,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
   const toast = useToast();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -43,7 +46,7 @@ const Login = () => {
         isClosable: true,
       });
       sessionStorage.setItem("token", res.data.token.access.token);
-      window.dispatchEvent(new Event("login"));
+      dispatch(trigger(true));
       navigate("/");
     } catch (err) {
       toast({

@@ -12,6 +12,7 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import Navbar from "./components/Navbar/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Meditation from "./components/Meditation/Meditation";
+import ProfileDetails from "./components/Details/ProfileDetails";
 import { useSelector, useDispatch } from "react-redux";
 import "./App.css";
 
@@ -43,7 +44,6 @@ function App() {
               }
             />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
             <Route
               path="/reset-password"
               element={
@@ -55,6 +55,15 @@ function App() {
             />
             <Route path="/confirm-password" element={<ConfirmPassword />} />
             <Route path="/meditation" element={<Meditation />} />
+            <Route
+              path="/details"
+              element={
+                <ProtectedRoute
+                  element={<ProfileDetails />}
+                  isAuthenticated={isAuthenticated}
+                />
+              }
+            />
           </Routes>
         </Box>
       </Box>
