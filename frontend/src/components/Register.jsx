@@ -61,7 +61,8 @@ const Register = () => {
         "Registered Successfully.",
         "success"
       );
-      dispatch(trigger(isAuthenticated));
+      // Remove this line
+      // dispatch(trigger(isAuthenticated));
       navigate("/verify", { state: { email: formData.email } });
     } catch (err) {
       const errorMessage = err.response?.data?.message || "An error occurred";
@@ -69,11 +70,7 @@ const Register = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    dispatch(reset(isAuthenticated));
-  }, []);
+  }; // Missing closing curly brace and semicolon here
 
   return (
     <Box

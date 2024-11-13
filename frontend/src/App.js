@@ -15,6 +15,7 @@ import Meditation from "./components/Meditation/Meditation";
 import ProfileDetails from "./components/Details/ProfileDetails";
 import { useSelector, useDispatch } from "react-redux";
 import "./App.css";
+import PublicRoute from "./components/PublicRoute";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.authentication.value);
@@ -31,8 +32,24 @@ function App() {
         <Box flex="1" position="relative">
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute
+                  element={<Register />}
+                  isAuthenticated={isAuthenticated}
+                />
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <PublicRoute
+                  element={<Login />}
+                  isAuthenticated={isAuthenticated}
+                />
+              }
+            />
             {/* <Route path="/verify" element={<VerifyOTP />} /> */}
             <Route
               path="/verify"

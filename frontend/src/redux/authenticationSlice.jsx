@@ -6,8 +6,8 @@ const authenticationSlice = createSlice({
     value: false,
   },
   reducers: {
-    trigger: (state) => {
-      state.value = true;
+    trigger: (state, action) => {
+      state.value = action.payload;
     },
     reset: (state) => {
       state.value = false;

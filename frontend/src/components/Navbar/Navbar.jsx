@@ -25,6 +25,15 @@ const Navbar = () => {
   const isAuthenticated = useSelector((state) => state.authentication.value);
   const buttonSize = useBreakpointValue({ base: "sm", md: "md" });
 
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      dispatch(trigger(true));
+    } else {
+      dispatch(trigger(false));
+    }
+  }, [dispatch]);
+
   const handleLogout = () => {
     sessionStorage.removeItem("token");
     dispatch(trigger(false));
