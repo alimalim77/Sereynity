@@ -1,5 +1,21 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+#root {
+  min-height: 100vh;
+  position: relative;
+  overflow-y: auto;
+}
+
 .App {
-  text-align: center;
+  min-height: 100vh;
+  position: relative;
+  padding-top: 70px; /* Height of navbar */
+  overflow-y: auto;
 }
 
 .App-logo {

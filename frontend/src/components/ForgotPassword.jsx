@@ -38,26 +38,30 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${process.env.REACT_APP_URI}/v1/auth/forgot-password`, {
-        email,
-      });
-      localStorage.setItem("forgotEmail", email);
-      showNotification(
-        "Password reset email sent",
-        "Please check your inbox.",
-        "success"
+      const response = await axios.post(
+        `${process.env.REACT_APP_URI}/v1/auth/forgot-password`,
+        {
+          email,
+        }
       );
-      dispatch(trigger(isAuthenticated));
-      navigate("/reset-password");
+
+      if (response.data.user) {
+        localStorage.setItem("forgotEmail", email);
+        sessionStorage.setItem("pendingVerification", "true");
+        sessionStorage.setItem("verificationEmail", email);
+        showNotification(
+          "Password reset email sent",
+          "Please check your inbox.",
+          "success"
+        );
+        navigate("/reset-password");
+      }
     } catch (err) {
-      console.log(err);
-      setError(err.response?.data?.message);
+      const errorMessage =
+        err.response?.data?.message || "Invalid email address or unauthorized";
+      showNotification("Error", errorMessage, "error");
     }
   };
-
-  useEffect(() => {
-    dispatch(reset(isAuthenticated));
-  }, []);
 
   return (
     <Box
@@ -99,7 +103,11 @@ const ForgotPassword = () => {
             Send Reset Email
           </Button>
         </form>
-        {error && showNotification("Error", error, "error")}
+        {error && (
+          <Text color="red.500" mt={2}>
+            {error}
+          </Text>
+        )}
       </VStack>
     </Box>
   );

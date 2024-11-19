@@ -16,6 +16,7 @@ import ProfileDetails from "./components/Details/ProfileDetails";
 import { useSelector, useDispatch } from "react-redux";
 import "./App.css";
 import PublicRoute from "./components/PublicRoute";
+import VerificationRoute from "./components/VerificationRoute";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.authentication.value);
@@ -50,25 +51,14 @@ function App() {
                 />
               }
             />
-            {/* <Route path="/verify" element={<VerifyOTP />} /> */}
             <Route
               path="/verify"
-              element={
-                <ProtectedRoute
-                  element={<VerifyOTP />}
-                  isAuthenticated={isAuthenticated}
-                />
-              }
+              element={<VerificationRoute element={<VerifyOTP />} />}
             />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route
               path="/reset-password"
-              element={
-                <ProtectedRoute
-                  element={<ResetPassword />}
-                  isAuthenticated={isAuthenticated}
-                />
-              }
+              element={<VerificationRoute element={<ResetPassword />} />}
             />
             <Route path="/confirm-password" element={<ConfirmPassword />} />
             <Route path="/meditation" element={<Meditation />} />

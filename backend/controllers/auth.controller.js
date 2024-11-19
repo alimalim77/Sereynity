@@ -108,7 +108,6 @@ const postForgotPassword = async (req, res) => {
     const response = extractResponse(user);
 
     await assignDetails(user, otp, expiresAt);
-
     return res
       .status(200)
       .json({ user: { ...response, otp: otp, otpExpiresAt: expiresAt } });
@@ -150,7 +149,7 @@ const resetPassword = async (req, res) => {
 // Test for integration verified using pre-performed function
 const confirmPassword = async (req, res) => {
   const { email, password } = req.body;
-
+  console.log(email, password);
   const authHeader = req.headers.authorization.split(" ")[1];
   if (!authHeader) {
     return res.status(401).json({ message: "Token required" });

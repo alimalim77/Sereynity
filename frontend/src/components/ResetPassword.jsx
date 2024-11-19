@@ -62,6 +62,8 @@ const ResetPassword = () => {
         }
       );
       showNotification("Success", "OTP verified successfully!", "success");
+      sessionStorage.removeItem("pendingVerification");
+      sessionStorage.removeItem("verificationEmail");
       navigate("/confirm-password", {
         state: {
           token: response.data.token.access.token,

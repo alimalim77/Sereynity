@@ -1,7 +1,4 @@
 import React, { useState } from "react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import {
   Box,
   useColorModeValue,
@@ -12,6 +9,9 @@ import {
   AccordionPanel,
   AccordionIcon,
   Text,
+  Button,
+  Flex,
+  IconButton,
 } from "@chakra-ui/react";
 import {
   FaBrain,
@@ -21,116 +21,168 @@ import {
   FaEye,
   FaHeart,
   FaSignInAlt,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 import Stopwatch from "../Stopwatch/Stopwatch";
 import MeditationSounds from "./MeditationSounds";
 import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import styles from "./Meditation.module.css";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { Icon } from "@chakra-ui/react";
+
+const meditationForms = [
+  { name: "Mindfulness", icon: <FaBrain />, duration: 600 },
+  { name: "Breathing", icon: <FaLeaf />, duration: 300 },
+  { name: "Loving-Kindness", icon: <FaHeart />, duration: 600 },
+  { name: "Body Scan", icon: <FaEye />, duration: 900 },
+  { name: "Zen", icon: <FaPagelines />, duration: 1200 },
+  { name: "Guided", icon: <FaHandsHelping />, duration: 900 },
+];
 
 const Meditation = () => {
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
-  const meditationForms = [
-    { name: "Mindfulness", icon: <FaBrain />, duration: 600 },
-    { name: "Transcendental", icon: <FaLeaf />, duration: 1200 },
-    { name: "Guided", icon: <FaHandsHelping />, duration: 900 },
-    { name: "Zen", icon: <FaPagelines />, duration: 1800 },
-    { name: "Vipassana", icon: <FaEye />, duration: 3600 },
-    { name: "Loving-kindness", icon: <FaHeart />, duration: 600 },
-  ];
-
-  const [currentMeditation, setCurrentMeditation] = useState(
+  const [selectedMeditation, setSelectedMeditation] = useState(
     meditationForms[0]
   );
-  const bgColor = useColorModeValue("gray.100", "purple.800");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const sidebarBg = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const isAuthenticated = useSelector((state) => state.authentication.value);
+  const navigate = useNavigate();
 
-  if (!sessionStorage.getItem("token")) {
+  if (!isAuthenticated) {
     return (
       <Box
+        height="100vh"
         display="flex"
         flexDirection="column"
         alignItems="center"
         justifyContent="center"
-        h="100%"
-        fontFamily="Arial, sans-serif"
+        p={4}
       >
-        <FaSignInAlt size={24} />
-        <span
-          style={{
-            marginLeft: "8px",
-            fontSize: "18px",
-            fontWeight: "bold",
-            padding: "10px",
-          }}
-        >
-          Please log in to access meditation.
-        </span>
+        <VStack spacing={6}>
+          <Icon as={FaSignInAlt} boxSize={12} color="purple.500" />
+          <Text fontSize="xl" textAlign="center">
+            Please log in to access meditation features
+          </Text>
+          <Button
+            colorScheme="purple"
+            leftIcon={<FaSignInAlt />}
+            onClick={() => navigate("/login")}
+          >
+            Go to Login
+          </Button>
+        </VStack>
       </Box>
     );
   }
 
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: true,
-    afterChange: (index) => setCurrentMeditation(meditationForms[index]),
-    adaptiveHeight: true,
-  };
-
   return (
-    <Box
-      className={styles.container}
-      bg={bgColor}
-      h="100%"
-      w="100%"
-      overflow="hidden"
-      position="absolute"
-      top="70px"
-      left="0"
-      right="0"
-      bottom="0"
-    >
-      <VStack spacing={4} p={4}>
-        <Accordion className={styles.accordionWrapper} allowToggle w="100%">
-          <AccordionItem className={styles.accordionItem}>
-            <AccordionButton className={styles.accordionButton}>
-              <Box className={styles.soundTitleContainer}>
-                <span className={styles.soundIcon}>
-                  {isSoundPlaying ? <FaVolumeUp /> : <FaVolumeMute />}
-                </span>
-                <Text>Ambient Sounds</Text>
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-            <AccordionPanel className={styles.accordionPanel}>
-              <MeditationSounds onSoundStateChange={setIsSoundPlaying} />
-            </AccordionPanel>
-          </AccordionItem>
-        </Accordion>
-        <Box w="100%" flex="1">
-          <Slider {...settings} style={{ height: "calc(100% - 100px)" }}>
-            {meditationForms.map((form, index) => (
-              <Box
-                key={index}
-                h="100%"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                overflow="hidden"
-              >
-                <Stopwatch
-                  duration={form.duration}
-                  meditationType={form.name}
-                  icon={form.icon}
-                />
-              </Box>
-            ))}
-          </Slider>
+    <Flex h="100vh">
+      {/* Sidebar */}
+      {isSidebarOpen && (
+        <Box
+          w="300px"
+          bg={sidebarBg}
+          borderRight="1px"
+          borderColor={borderColor}
+          p={4}
+          h="calc(100% - 70px)"
+          overflowY="auto"
+          position="fixed"
+          left="0"
+          top="70px"
+          zIndex="1"
+        >
+          <VStack spacing={6} align="stretch">
+            {/* Meditation Types Section */}
+            <Accordion defaultIndex={[0]} allowMultiple>
+              <AccordionItem>
+                <AccordionButton>
+                  <Box flex="1" textAlign="left" fontWeight="bold">
+                    Meditation Types
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <VStack spacing={3} align="stretch">
+                    {meditationForms.map((form, index) => (
+                      <Button
+                        key={index}
+                        leftIcon={form.icon}
+                        variant={
+                          selectedMeditation.name === form.name
+                            ? "solid"
+                            : "ghost"
+                        }
+                        colorScheme="purple"
+                        justifyContent="flex-start"
+                        onClick={() => setSelectedMeditation(form)}
+                      >
+                        {form.name}
+                      </Button>
+                    ))}
+                  </VStack>
+                </AccordionPanel>
+              </AccordionItem>
+
+              {/* Ambient Sounds Section */}
+              <AccordionItem>
+                <AccordionButton>
+                  <Box flex="1" textAlign="left" fontWeight="bold">
+                    Ambient Sounds
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <MeditationSounds
+                    onSoundStateChange={setIsSoundPlaying}
+                    displayType="vertical"
+                  />
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
+          </VStack>
         </Box>
-      </VStack>
-    </Box>
+      )}
+
+      {/* Toggle Button */}
+      <IconButton
+        icon={isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
+        position="fixed"
+        left={isSidebarOpen ? "300px" : "0"}
+        top="50%"
+        transform="translateY(-50%)"
+        zIndex={2}
+        size="sm"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        aria-label="Toggle Sidebar"
+        variant="solid"
+        colorScheme="purple"
+        borderLeftRadius={isSidebarOpen ? "md" : 0}
+        borderRightRadius={isSidebarOpen ? 0 : "md"}
+      />
+
+      {/* Main Content */}
+      <Box
+        flex="1"
+        ml={isSidebarOpen ? "300px" : "0"}
+        transition="margin-left 0.3s"
+        h="100%"
+        w="100%"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Stopwatch
+          duration={selectedMeditation.duration}
+          meditationType={selectedMeditation.name}
+          icon={selectedMeditation.icon}
+        />
+      </Box>
+    </Flex>
   );
 };
 

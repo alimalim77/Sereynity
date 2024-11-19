@@ -61,8 +61,8 @@ const Register = () => {
         "Registered Successfully.",
         "success"
       );
-      // Remove this line
-      // dispatch(trigger(isAuthenticated));
+      sessionStorage.setItem("pendingVerification", "true");
+      sessionStorage.setItem("verificationEmail", formData.email);
       navigate("/verify", { state: { email: formData.email } });
     } catch (err) {
       const errorMessage = err.response?.data?.message || "An error occurred";
@@ -70,7 +70,7 @@ const Register = () => {
     } finally {
       setIsLoading(false);
     }
-  }; // Missing closing curly brace and semicolon here
+  };
 
   return (
     <Box

@@ -61,6 +61,9 @@ const VerifyOTP = () => {
         duration: 3000,
         isClosable: true,
       });
+      // Clear verification state
+      sessionStorage.removeItem("pendingVerification");
+      sessionStorage.removeItem("verificationEmail");
       navigate("/login"); // Redirect to homepage or dashboard after successful OTP verification
     } catch (err) {
       const errorMessage =
