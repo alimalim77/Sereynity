@@ -15,10 +15,10 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
-  .soundButton.active {
+  /* .soundButton.active {
     color: white !important;
   }
-  
+   */
   .soundButton::before {
     content: '';
     position: absolute;

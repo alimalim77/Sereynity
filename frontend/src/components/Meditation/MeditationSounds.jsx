@@ -62,16 +62,6 @@ const MeditationSounds = ({ onSoundStateChange }) => {
     }
   };
 
-  const getSoundColor = (soundName, isActive) => {
-    const colors = {
-      Rain: { base: "blue.400", active: "blue.600" },
-      Ocean: { base: "cyan.400", active: "cyan.600" },
-      Forest: { base: "green.400", active: "green.600" },
-      "Singing Bowl": { base: "purple.400", active: "yellow.600" },
-    };
-    return isActive ? colors[soundName].active : colors[soundName].base;
-  };
-
   return (
     <Box className={styles.soundsContainer}>
       <SimpleGrid className={styles.soundGrid}>
@@ -84,7 +74,7 @@ const MeditationSounds = ({ onSoundStateChange }) => {
             onClick={() => handleSoundClick(sound)}
             color={
               activeSound === sound.id
-                ? "white"
+                ? "yellow.500"
                 : colorMode === "dark"
                 ? "gray.100"
                 : "gray.800"
@@ -92,10 +82,7 @@ const MeditationSounds = ({ onSoundStateChange }) => {
             rightIcon={sound.icon}
             iconSpacing="1rem"
             size="md"
-            fontWeight="bold"
-            _active={{
-              transform: "translateY(1px)",
-            }}
+            fontWeight="medium"
             transition="all 0.5s"
           >
             {sound.name}
