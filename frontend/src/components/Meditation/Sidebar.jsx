@@ -18,6 +18,8 @@ const Sidebar = ({
   setSelectedMeditation,
   meditationForms,
   setIsSoundPlaying,
+  activeSound,
+  handleSoundControl,
 }) => {
   const sidebarBg = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
@@ -77,6 +79,8 @@ const Sidebar = ({
             <AccordionPanel pb={4}>
               <MeditationSounds
                 onSoundStateChange={setIsSoundPlaying}
+                activeSound={activeSound}
+                onSoundControl={handleSoundControl}
                 displayType="vertical"
               />
             </AccordionPanel>
