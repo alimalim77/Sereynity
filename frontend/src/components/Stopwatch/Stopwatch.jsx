@@ -1,34 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button, Text, VStack, Progress, Center } from "@chakra-ui/react";
 import styles from "./Stopwatch.module.css";
+import axios from "axios";
+import { useToast } from "@chakra-ui/react";
 
 const Stopwatch = ({ duration, meditationType, icon }) => {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
+  const [hasCompleted, setHasCompleted] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     let intervalId;
     if (isRunning && time < duration) {
       intervalId = setInterval(() => {
-        setTime((prevTime) => prevTime + 1);
+        setTime((prevTime) => {
+          const newTime = prevTime + 1;
+          // Voice notification every 5 minutes
+          if (newTime % 300 === 0) {
+            const utterance = new SpeechSynthesisUtterance(
+              `You have ${
+                Math.floor(duration / 60) - Math.floor(newTime / 60)
+              } minutes left!`
+            );
+            window.speechSynthesis.speak(utterance);
+          }
+          return newTime;
+        });
       }, 1000);
     } else if (time >= duration) {
       setIsRunning(false);
+      handleSessionComplete();
     }
     return () => clearInterval(intervalId);
   }, [isRunning, time, duration]);
-
-  useEffect(() => {
-    if (isRunning && time % 300 === 0 && time > 0) {
-      // Check if time is a multiple of 2 minutes
-      const utterance = new SpeechSynthesisUtterance(
-        `You have ${
-          Math.floor(duration / 60) - Math.floor(time / 60)
-        }  minutes left!`
-      );
-      window.speechSynthesis.speak(utterance);
-    }
-  }, [time, isRunning]);
 
   const startStop = () => {
     setIsRunning(!isRunning);
@@ -37,6 +42,7 @@ const Stopwatch = ({ duration, meditationType, icon }) => {
   const reset = () => {
     setTime(0);
     setIsRunning(false);
+    setHasCompleted(false);
   };
 
   const formatTime = (timeInSeconds) => {
@@ -48,6 +54,45 @@ const Stopwatch = ({ duration, meditationType, icon }) => {
   };
 
   const progress = (time / duration) * 100;
+
+  const handleSessionComplete = async () => {
+    if (time > 0 && !hasCompleted) {
+      setHasCompleted(true);
+      try {
+        const token = sessionStorage.getItem("token");
+        await axios.post(
+          `${process.env.REACT_APP_URI}/v1/meditation/sessions`,
+          {
+            duration: time,
+            meditationType: meditationType.toLowerCase(),
+            isCompleted: true,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        toast({
+          title: "Session Complete",
+          description: "Meditation session recorded successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        reset();
+      } catch (error) {
+        setHasCompleted(false); // Reset on error
+        toast({
+          title: "Error",
+          description: "Failed to record meditation session",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    }
+  };
 
   return (
     <VStack className={styles.container}>

@@ -27,6 +27,7 @@ import {
   IconButton,
   Icon,
 } from "@chakra-ui/react";
+import MeditationSessions from "./MeditationSessions";
 
 const ProfileDetails = () => {
   const [name, setName] = useState("");
@@ -37,11 +38,13 @@ const ProfileDetails = () => {
     streakCount: 0,
     notificationPreferences: {
       reminderEnabled: false,
+      reminderTime: "",
       emailNotifications: false,
     },
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
+  const [sessions, setSessions] = useState([]);
 
   const navigate = useNavigate();
   const toast = useToast();
@@ -50,26 +53,35 @@ const ProfileDetails = () => {
   const cardBgColor = useColorModeValue("white", "gray.700");
 
   useEffect(() => {
-    const fetchDetails = async () => {
-      console.log("Fetching details...");
+    const fetchData = async () => {
       try {
         const token = sessionStorage.getItem("token");
-        console.log("Token:", token);
+        const [detailsResponse, sessionsResponse] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_URI}/v1/details/get-details`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${process.env.REACT_APP_URI}/v1/meditation/sessions`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-        const response = await axios.get(
-          `${process.env.REACT_APP_URI}/v1/details/get-details`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
+        console.log("Details Response:", detailsResponse.data);
+
+        if (detailsResponse.data.details) {
+          setName(detailsResponse.data.details.name);
+          setDetails({
+            ...detailsResponse.data.details,
+            notificationPreferences: {
+              reminderEnabled: false,
+              reminderTime: "",
+              emailNotifications: false,
+              ...detailsResponse.data.details.notificationPreferences,
             },
-          }
-        );
+          });
+        }
 
-        console.log("API Response:", response.data);
-
-        if (response.data.details) {
-          setName(response.data.details.name);
-          setDetails(response.data.details);
+        if (sessionsResponse.data) {
+          setSessions(sessionsResponse.data);
         }
       } catch (err) {
         console.error("API Error:", err);
@@ -88,7 +100,7 @@ const ProfileDetails = () => {
       }
     };
 
-    fetchDetails();
+    fetchData();
   }, [navigate, toast]);
 
   const handleEmailToggle = async (e) => {
@@ -96,7 +108,7 @@ const ProfileDetails = () => {
       setDetails((prev) => ({
         ...prev,
         notificationPreferences: {
-          ...prev.notificationPreferences,
+          ...(prev.notificationPreferences || {}),
           emailNotifications: e.target.checked,
         },
       }));
@@ -160,156 +172,174 @@ const ProfileDetails = () => {
   }
 
   return (
-    <Box
-      minHeight="100vh"
-      bg={colorMode === "light" ? "gray.100" : "gray.900"}
-      p={4}
-      pt="90px"
-      maxW="320px"
-    >
-      <VStack spacing={4} width="full" alignItems="flex-start" ml={2}>
-        <Heading
-          size="lg"
-          color={colorMode === "light" ? "gray.800" : "white"}
-          fontWeight="bold"
-          letterSpacing="wide"
+    <Box p={6} bg={bgColor} minH="100vh">
+      <HStack align="start" spacing={8}>
+        {/* Left side - Profile Details */}
+        <Box
+          w="300px"
+          p={4}
+          borderRadius="lg"
+          bg={cardBgColor}
+          boxShadow="md"
+          position="sticky"
+          top={4}
         >
-          Profile Details
-        </Heading>
-
-        <VStack spacing={3} width="full" alignItems="flex-start">
-          {/* Name */}
-          <HStack width="full" spacing={3}>
-            <Icon
-              as={FaUser}
-              boxSize={4}
-              color={colorMode === "light" ? "purple.600" : "purple.400"}
-            />
-            {isEditing ? (
-              <Input
-                value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
-                variant="flushed"
+          <VStack spacing={4} align="stretch">
+            <VStack spacing={4} width="full" alignItems="flex-start" ml={2}>
+              <Heading
+                size="lg"
                 color={colorMode === "light" ? "gray.800" : "white"}
-                _focus={{ borderColor: "purple.400" }}
-                size="sm"
-                maxW="120px"
-              />
-            ) : (
-              <Text
-                fontSize="sm"
-                color={colorMode === "light" ? "gray.800" : "gray.100"}
+                fontWeight="bold"
+                letterSpacing="wide"
               >
-                {name}
-              </Text>
-            )}
-          </HStack>
+                Profile Details
+              </Heading>
 
-          {/* Experience Level */}
-          <HStack width="full" spacing={3}>
-            <Icon
-              as={FaStar}
-              boxSize={4}
-              color={colorMode === "light" ? "purple.600" : "purple.400"}
-            />
-            <Text
-              fontSize="sm"
-              color={colorMode === "light" ? "gray.800" : "gray.100"}
-            >
-              {details.experienceLevel}
-            </Text>
-          </HStack>
+              <VStack spacing={3} width="full" alignItems="flex-start">
+                {/* Name */}
+                <HStack width="full" spacing={3}>
+                  <Icon
+                    as={FaUser}
+                    boxSize={4}
+                    color={colorMode === "light" ? "purple.600" : "purple.400"}
+                  />
+                  {isEditing ? (
+                    <Input
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      variant="flushed"
+                      color={colorMode === "light" ? "gray.800" : "white"}
+                      _focus={{ borderColor: "purple.400" }}
+                      size="sm"
+                      maxW="120px"
+                    />
+                  ) : (
+                    <Text
+                      fontSize="sm"
+                      color={colorMode === "light" ? "gray.800" : "gray.100"}
+                    >
+                      {name}
+                    </Text>
+                  )}
+                </HStack>
 
-          {/* Meditation Minutes */}
-          <HStack width="full" spacing={3}>
-            <Icon
-              as={FaClock}
-              boxSize={4}
-              color={colorMode === "light" ? "purple.600" : "purple.400"}
-            />
-            <Text
-              fontSize="sm"
-              color={colorMode === "light" ? "gray.800" : "gray.100"}
-            >
-              {details.totalMeditationMinutes} minutes
-            </Text>
-          </HStack>
+                <HStack width="full" spacing={3}>
+                  <Icon
+                    as={FaStar}
+                    boxSize={4}
+                    color={colorMode === "light" ? "purple.600" : "purple.400"}
+                  />
+                  <Text
+                    fontSize="sm"
+                    color={colorMode === "light" ? "gray.800" : "gray.100"}
+                  >
+                    {details.experienceLevel}
+                  </Text>
+                </HStack>
 
-          {/* Streak Count */}
-          <HStack width="full" spacing={3}>
-            <Icon
-              as={FaStopwatch}
-              boxSize={4}
-              color={colorMode === "light" ? "purple.600" : "purple.400"}
-            />
-            <Text
-              fontSize="sm"
-              color={colorMode === "light" ? "gray.800" : "gray.100"}
-            >
-              {details.streakCount} day streak
-            </Text>
-          </HStack>
+                {/* Meditation Minutes */}
+                <HStack width="full" spacing={3}>
+                  <Icon
+                    as={FaClock}
+                    boxSize={4}
+                    color={colorMode === "light" ? "purple.600" : "purple.400"}
+                  />
+                  <Text
+                    fontSize="sm"
+                    color={colorMode === "light" ? "gray.800" : "gray.100"}
+                  >
+                    {details.totalMeditationMinutes} minutes
+                  </Text>
+                </HStack>
 
-          {/* Email Notifications */}
-          <HStack width="full" spacing={3} justify="space-between">
-            <HStack spacing={3}>
-              <Icon
-                as={FaEnvelope}
-                boxSize={4}
-                color={colorMode === "light" ? "purple.600" : "purple.400"}
-              />
-              <Text
-                fontSize="sm"
-                color={colorMode === "light" ? "gray.800" : "gray.100"}
-              >
-                Email Notifications
-              </Text>
-            </HStack>
-            <Switch
-              size="sm"
-              colorScheme="purple"
-              isChecked={details.notificationPreferences.emailNotifications}
-              onChange={handleEmailToggle}
-              isDisabled={!isEditing}
-            />
-          </HStack>
+                {/* Streak Count */}
+                <HStack width="full" spacing={3}>
+                  <Icon
+                    as={FaStopwatch}
+                    boxSize={4}
+                    color={colorMode === "light" ? "purple.600" : "purple.400"}
+                  />
+                  <Text
+                    fontSize="sm"
+                    color={colorMode === "light" ? "gray.800" : "gray.100"}
+                  >
+                    {details.streakCount} day streak
+                  </Text>
+                </HStack>
 
-          {/* Edit Button */}
-          <Box position="relative" width="full" pt={2}>
-            {isEditing ? (
-              <HStack spacing={2}>
-                <IconButton
-                  icon={<FaTimes />}
-                  colorScheme="red"
-                  onClick={handleCancel}
-                  size="xs"
-                  rounded="full"
-                  variant="solid"
-                  bg="purple.600"
-                />
-                <IconButton
-                  icon={<FaSave />}
-                  colorScheme="purple"
-                  onClick={handleSave}
-                  size="xs"
-                  rounded="full"
-                  variant="solid"
-                  bg="purple.600"
-                />
-              </HStack>
-            ) : (
-              <IconButton
-                icon={<FaEdit />}
-                colorScheme="purple"
-                onClick={handleEditClick}
-                size="xs"
-                rounded="full"
-                variant="solid"
-              />
-            )}
-          </Box>
+                {/* Email Notifications */}
+                <HStack width="full" spacing={3} justify="space-between">
+                  <HStack spacing={3}>
+                    <Icon
+                      as={FaEnvelope}
+                      boxSize={4}
+                      color={
+                        colorMode === "light" ? "purple.600" : "purple.400"
+                      }
+                    />
+                    <Text
+                      fontSize="sm"
+                      color={colorMode === "light" ? "gray.800" : "gray.100"}
+                    >
+                      Email Notifications
+                    </Text>
+                  </HStack>
+                  <Switch
+                    size="sm"
+                    colorScheme="purple"
+                    isChecked={
+                      details?.notificationPreferences?.emailNotifications ??
+                      false
+                    }
+                    onChange={handleEmailToggle}
+                    isDisabled={!isEditing}
+                  />
+                </HStack>
+
+                {/* Edit Button */}
+                <Box position="relative" width="full" pt={2}>
+                  {isEditing ? (
+                    <HStack spacing={2}>
+                      <IconButton
+                        icon={<FaTimes />}
+                        colorScheme="red"
+                        onClick={handleCancel}
+                        size="xs"
+                        rounded="full"
+                        variant="solid"
+                        bg="purple.600"
+                      />
+                      <IconButton
+                        icon={<FaSave />}
+                        colorScheme="purple"
+                        onClick={handleSave}
+                        size="xs"
+                        rounded="full"
+                        variant="solid"
+                        bg="purple.600"
+                      />
+                    </HStack>
+                  ) : (
+                    <IconButton
+                      icon={<FaEdit />}
+                      colorScheme="purple"
+                      onClick={handleEditClick}
+                      size="xs"
+                      rounded="full"
+                      variant="solid"
+                    />
+                  )}
+                </Box>
+              </VStack>
+            </VStack>
+          </VStack>
+        </Box>
+
+        {/* Sessions display */}
+        <VStack flex="1" spacing={4}>
+          <MeditationSessions sessions={sessions} />
         </VStack>
-      </VStack>
+      </HStack>
     </Box>
   );
 };

@@ -12,20 +12,12 @@ import { WiRain, WiTsunami } from "react-icons/wi";
 import { GiForestCamp } from "react-icons/gi";
 import styles from "./MeditationSounds.module.css";
 
-const MeditationSounds = ({ onSoundStateChange }) => {
-  const [activeSound, setActiveSound] = useState(null);
-  const audioRef = useRef(null);
+const MeditationSounds = ({
+  onSoundStateChange,
+  activeSound,
+  onSoundControl,
+}) => {
   const { colorMode } = useColorMode();
-
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-        setActiveSound(null);
-      }
-    };
-  }, []);
 
   const sounds = [
     { id: 1, name: "Rain", url: "/sounds/rain.wav", icon: <WiRain /> },
@@ -44,24 +36,6 @@ const MeditationSounds = ({ onSoundStateChange }) => {
     },
   ];
 
-  // Add to handleSoundClick
-  const handleSoundClick = (sound) => {
-    if (activeSound === sound.id) {
-      audioRef.current?.pause();
-      setActiveSound(null);
-      onSoundStateChange(false);
-    } else {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      audioRef.current = new Audio(sound.url);
-      audioRef.current.loop = true;
-      audioRef.current.play();
-      setActiveSound(sound.id);
-      onSoundStateChange(true);
-    }
-  };
-
   return (
     <Box className={styles.soundsContainer}>
       <SimpleGrid className={styles.soundGrid}>
@@ -71,7 +45,7 @@ const MeditationSounds = ({ onSoundStateChange }) => {
             className={`${styles.soundButton} ${
               styles[sound.name.toLowerCase().replace(/\s+/g, "")]
             } ${activeSound === sound.id ? styles.active : ""}`}
-            onClick={() => handleSoundClick(sound)}
+            onClick={() => onSoundControl(sound)}
             color={
               activeSound === sound.id
                 ? "yellow.500"

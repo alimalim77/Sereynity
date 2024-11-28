@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   useColorModeValue,
@@ -23,9 +23,9 @@ import {
   FaSignInAlt,
   FaChevronLeft,
   FaChevronRight,
+  FaFrog,
 } from "react-icons/fa";
 import Stopwatch from "../Stopwatch/Stopwatch";
-import MeditationSounds from "./MeditationSounds";
 import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import styles from "./Meditation.module.css";
 import { useSelector } from "react-redux";
@@ -40,6 +40,7 @@ const meditationForms = [
   { name: "Body Scan", icon: <FaEye />, duration: 900 },
   { name: "Zen", icon: <FaPagelines />, duration: 1200 },
   { name: "Guided", icon: <FaHandsHelping />, duration: 900 },
+  { name: "G-Test", icon: <FaFrog />, duration: 10 },
 ];
 
 const Meditation = () => {
@@ -48,10 +49,40 @@ const Meditation = () => {
     meditationForms[0]
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeSound, setActiveSound] = useState(null);
+  const audioRef = useRef(null);
   const sidebarBg = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const isAuthenticated = useSelector((state) => state.authentication.value);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+        setActiveSound(null);
+        setIsSoundPlaying(false);
+      }
+    };
+  }, []);
+
+  const handleSoundControl = (sound) => {
+    if (activeSound === sound.id) {
+      audioRef.current?.pause();
+      setActiveSound(null);
+      setIsSoundPlaying(false);
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      audioRef.current = new Audio(sound.url);
+      audioRef.current.loop = true;
+      audioRef.current.play();
+      setActiveSound(sound.id);
+      setIsSoundPlaying(true);
+    }
+  };
 
   if (!isAuthenticated) {
     return (
@@ -88,6 +119,8 @@ const Meditation = () => {
         setSelectedMeditation={setSelectedMeditation}
         meditationForms={meditationForms}
         setIsSoundPlaying={setIsSoundPlaying}
+        activeSound={activeSound}
+        handleSoundControl={handleSoundControl}
       />
 
       {/* Toggle Button */}
