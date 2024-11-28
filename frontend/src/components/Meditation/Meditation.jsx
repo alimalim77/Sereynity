@@ -23,6 +23,7 @@ import {
   FaSignInAlt,
   FaChevronLeft,
   FaChevronRight,
+  FaFrog,
 } from "react-icons/fa";
 import Stopwatch from "../Stopwatch/Stopwatch";
 import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
@@ -39,6 +40,7 @@ const meditationForms = [
   { name: "Body Scan", icon: <FaEye />, duration: 900 },
   { name: "Zen", icon: <FaPagelines />, duration: 1200 },
   { name: "Guided", icon: <FaHandsHelping />, duration: 900 },
+  { name: "G-Test", icon: <FaFrog />, duration: 10 },
 ];
 
 const Meditation = () => {
