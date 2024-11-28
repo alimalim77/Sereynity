@@ -11,6 +11,7 @@ const {
 
 router.get("/", (req, res) => {
   console.log("Auth Test");
+  res.status(200).json({ message: "Auth Test" });
 });
 
 router.post("/register", userValidation.body, postRegister);

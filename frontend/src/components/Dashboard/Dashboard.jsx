@@ -136,13 +136,6 @@ const Dashboard = () => {
                   🧘 Start a Meditation Session
                 </Button>
                 <Button
-                  colorScheme="green"
-                  width="full"
-                  onClick={() => navigate("/breathing")}
-                >
-                  💫 Practice Deep Breathing
-                </Button>
-                <Button
                   colorScheme="teal"
                   width="full"
                   onClick={() => navigate("/journal")}

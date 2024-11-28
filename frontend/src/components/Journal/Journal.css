@@ -1,0 +1,35 @@
+.w-md-editor {
+  height: 100% !important;
+}
+
+.w-md-editor-content {
+  height: calc(100% - 50px) !important;
+}
+
+.w-md-editor-text-pre > code,
+.w-md-editor-text-input {
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  padding: 0.5rem !important;
+}
+
+.w-md-editor-toolbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1 !important;
+  background-color: inherit !important;
+}
+
+.w-md-editor-preview {
+  padding: 0.5rem !important;
+}
+
+.w-md-editor-preview {
+  overflow-y: auto !important;
+  height: 100% !important;
+}
+
+.w-md-editor-input {
+  overflow-y: auto !important;
+  height: 100% !important;
+} 

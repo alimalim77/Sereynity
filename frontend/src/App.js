@@ -17,6 +17,7 @@ import { useSelector, useDispatch } from "react-redux";
 import "./App.css";
 import PublicRoute from "./components/PublicRoute";
 import VerificationRoute from "./components/VerificationRoute";
+import Journal from "./components/Journal/Journal";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.authentication.value);
@@ -62,6 +63,7 @@ function App() {
             />
             <Route path="/confirm-password" element={<ConfirmPassword />} />
             <Route path="/meditation" element={<Meditation />} />
+            <Route path="/journal" element={<Journal />} />
             <Route
               path="/details"
               element={
