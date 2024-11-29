@@ -68,7 +68,6 @@ const ChangePassword = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          withCredentials: true,
         }
       );
       showNotification("Success", "Password changed successfully!", "success");
