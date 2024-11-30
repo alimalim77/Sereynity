@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
+import api from "../api/axios";
 
 import {
   Box,
@@ -58,8 +58,8 @@ const ChangePassword = () => {
 
     try {
       const email = localStorage.getItem("forgotEmail");
-      await axios.post(
-        `${process.env.REACT_APP_URI}/v1/auth/confirm-password`,
+      await api.post(
+        `/v1/auth/confirm-password`,
         {
           email: email,
           password: password,

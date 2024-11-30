@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
+import api from "../api/axios";
 import {
   Box,
   Button,
@@ -54,13 +54,10 @@ const ResetPassword = () => {
       const otpCode = Number(otp.join(""));
       const email = localStorage.getItem("forgotEmail");
 
-      const response = await axios.post(
-        `${process.env.REACT_APP_URI}/v1/auth/reset-password`,
-        {
-          email: email,
-          otp: otpCode,
-        }
-      );
+      const response = await api.post(`/v1/auth/reset-password`, {
+        email: email,
+        otp: otpCode,
+      });
       showNotification("Success", "OTP verified successfully!", "success");
       sessionStorage.removeItem("pendingVerification");
       sessionStorage.removeItem("verificationEmail");

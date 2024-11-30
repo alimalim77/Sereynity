@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { trigger, reset } from "../redux/authenticationSlice";
@@ -52,10 +52,7 @@ const Register = () => {
     }
     setIsLoading(true);
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_URI}/v1/auth/register`,
-        formData
-      );
+      const res = await api.post(`/v1/auth/register`, formData);
       showNotification(
         "Verification Email Sent",
         "Registered Successfully.",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useToast } from "@chakra-ui/react";
-import axios from "axios";
+import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { trigger, reset } from "../redux/authenticationSlice";
@@ -38,12 +38,9 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_URI}/v1/auth/forgot-password`,
-        {
-          email,
-        }
-      );
+      const response = await api.post(`/v1/auth/forgot-password`, {
+        email,
+      });
 
       if (response.data.user) {
         localStorage.setItem("forgotEmail", email);

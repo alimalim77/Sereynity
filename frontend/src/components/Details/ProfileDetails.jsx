@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
 import {
@@ -57,10 +57,10 @@ const ProfileDetails = () => {
       try {
         const token = sessionStorage.getItem("token");
         const [detailsResponse, sessionsResponse] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_URI}/v1/details/get-details`, {
+          api.get(`/v1/details/get-details`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`${process.env.REACT_APP_URI}/v1/meditation/sessions`, {
+          api.get(`/v1/meditation/sessions`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);

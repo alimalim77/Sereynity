@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button, Text, VStack, Progress, Center } from "@chakra-ui/react";
 import styles from "./Stopwatch.module.css";
-import axios from "axios";
+import api from "../../api/axios";
 import { useToast } from "@chakra-ui/react";
 
 const Stopwatch = ({ duration, meditationType, icon }) => {
@@ -60,8 +60,8 @@ const Stopwatch = ({ duration, meditationType, icon }) => {
       setHasCompleted(true);
       try {
         const token = sessionStorage.getItem("token");
-        await axios.post(
-          `${process.env.REACT_APP_URI}/v1/meditation/sessions`,
+        await api.post(
+          `/v1/meditation/sessions`,
           {
             duration: time,
             meditationType: meditationType.toLowerCase(),

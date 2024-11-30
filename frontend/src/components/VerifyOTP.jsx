@@ -1,8 +1,8 @@
 // src/components/VerifyOTP.js
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
+import api from "../api/axios";
 import {
   Box,
   Button,
@@ -47,13 +47,10 @@ const VerifyOTP = () => {
     e.preventDefault();
     try {
       const otpCode = Number(otp.join("")); // Combine the digits into a single string
-      const res = await axios.post(
-        `${process.env.REACT_APP_URI}/v1/auth/verify`,
-        {
-          email: email,
-          otp: otpCode,
-        }
-      );
+      const res = await api.post(`/v1/auth/verify`, {
+        email: email,
+        otp: otpCode,
+      });
       toast({
         title: "Success",
         description: "OTP verified successfully",

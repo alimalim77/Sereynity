@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { trigger } from "../redux/authenticationSlice";
@@ -34,10 +34,7 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_URI}/v1/auth/login`,
-        formData
-      );
+      const res = await api.post(`/v1/auth/login`, formData);
       toast({
         title: "Login Successful",
         description: "You have successfully logged in.",
