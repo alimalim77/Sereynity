@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://sereynity.onrender.com",
+  baseURL: "https://sereynity.vercel.app/",
   headers: {
     "Content-Type": "application/json",
   },
