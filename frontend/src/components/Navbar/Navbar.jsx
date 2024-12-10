@@ -48,13 +48,11 @@ const Navbar = () => {
       top={0}
       left={0}
       right={0}
-      zIndex="sticky"
+      zIndex={1000}
+      height="70px"
+      width="100%"
     >
-      <Flex
-        h="70px" // Fixed height for the navbar
-        alignItems="center"
-        justifyContent="space-between"
-      >
+      <Flex h="100%" alignItems="center" justifyContent="space-between">
         <Heading
           as="h1"
           size="lg"
@@ -64,7 +62,7 @@ const Navbar = () => {
           <RouterLink to="/">
             <Image
               src={Serenity}
-              maxHeight="60px" // Restrict image height to fit within navbar
+              maxHeight="60px"
               objectFit="contain"
               alt="Serenity"
               borderRadius="md"
